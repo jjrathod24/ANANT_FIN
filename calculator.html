@@ -1,3 +1,477 @@
-<!-- તમારો MF Calculator HTML અહીં paste કરો -->
-<!-- ઉપર જે calculator બનાવ્યો હતો તેનો full HTML code અહીં આવશે -->
-<h2>Calculator coming here</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MF Advisor Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/1.119.0/iconfont/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;background:#f5f7fa;color:#1a1a1a}
+.wrap{max-width:900px;margin:0 auto;padding:0 0 2rem}
+.top-bar{background:#0C447C;color:#fff;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-radius:0 0 12px 12px}
+.top-bar h1{font-size:18px;font-weight:500}
+.top-bar p{font-size:12px;opacity:0.75;margin-top:2px}
+.advisor-badge{background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px;font-size:12px;text-align:center}
+.nav{display:flex;gap:4px;overflow-x:auto;padding:1rem 1.5rem 0;scrollbar-width:none;border-bottom:1px solid #e0e0e0;background:#fff}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:8px 14px;border:none;background:transparent;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.nav-btn.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:500}
+.content{padding:1.5rem;background:#fff;margin:1rem;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;color:#666;margin-bottom:4px}
+.field input,.field select{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a}
+.field input:focus,.field select:focus{outline:none;border-color:#185FA5}
+.calc-btn{width:100%;padding:11px;background:#185FA5;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px}
+.calc-btn:hover{background:#0C447C}
+.metric{background:#f5f7fa;border-radius:8px;padding:14px;text-align:center;margin-bottom:10px}
+.metric-label{font-size:11px;color:#888;margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:500;color:#1a1a1a}
+.metric-val.green{color:#3B6D11}
+.metric-val.blue{color:#185FA5}
+.metric-val.amber{color:#854F0B}
+.metric-val.red{color:#A32D2D}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:14px;font-weight:500;margin-bottom:1rem;color:#555}
+.chart-wrap{position:relative;width:100%;height:260px;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th{text-align:left;font-weight:500;font-size:12px;color:#888;padding:8px 10px;border-bottom:1px solid #eee}
+td{padding:8px 10px;border-bottom:1px solid #eee;color:#1a1a1a}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9f9f9}
+.hidden{display:none}
+.pdf-btn{width:100%;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.pdf-btn:hover{background:#185FA5}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row span:first-child{color:#888}
+.info-row span:last-child{font-weight:500}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}.content{margin:0.5rem;padding:1rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <div>
+      <h1>📈 MF Advisor Pro</h1>
+      <p>All-in-one Mutual Fund Calculator</p>
+    </div>
+    <div class="advisor-badge">
+      <div style="font-size:11px;opacity:0.75">Advisor</div>
+      <div style="font-size:13px;font-weight:500">Dashboard</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('sip',this)">SIP</button>
+    <button class="nav-btn" onclick="showTab('lumpsum',this)">Lumpsum</button>
+    <button class="nav-btn" onclick="showTab('swp',this)">SWP</button>
+    <button class="nav-btn" onclick="showTab('goal',this)">Goal Plan</button>
+    <button class="nav-btn" onclick="showTab('elss',this)">ELSS / Tax</button>
+    <button class="nav-btn" onclick="showTab('inflation',this)">Inflation</button>
+    <button class="nav-btn" onclick="showTab('loan',this)">Loan vs SIP</button>
+    <button class="nav-btn" onclick="showTab('pdf',this)">📄 PDF Report</button>
+  </div>
+
+  <div class="content">
+
+    <!-- SIP -->
+    <div id="tab-sip">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Monthly SIP Amount (₹)</label><input type="number" id="sip-amt" value="10000" oninput="calcSIP()"></div>
+          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="sip-rate" value="12" step="0.5" oninput="calcSIP()"></div>
+          <div class="field"><label>Investment Period (Years)</label><input type="number" id="sip-years" value="15" oninput="calcSIP()"></div>
+          <div class="field"><label>Step-up SIP (% per year)</label><input type="number" id="sip-step" value="0" oninput="calcSIP()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Total Invested</div><div class="metric-val blue" id="sip-invested">—</div></div>
+          <div class="metric"><div class="metric-label">Wealth Gained</div><div class="metric-val green" id="sip-gain">—</div></div>
+          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val green" id="sip-maturity" style="font-size:26px">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Growth projection</h3><div class="chart-wrap"><canvas id="sipChart"></canvas></div></div>
+      <div class="card"><h3>Year-wise table</h3><div style="overflow-x:auto"><table><thead><tr><th>Year</th><th>Invested (₹)</th><th>Returns (₹)</th><th>Value (₹)</th></tr></thead><tbody id="sip-table"></tbody></table></div></div>
+    </div>
+
+    <!-- Lumpsum -->
+    <div id="tab-lumpsum" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Lumpsum Amount (₹)</label><input type="number" id="ls-amt" value="500000" oninput="calcLS()"></div>
+          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="ls-rate" value="12" step="0.5" oninput="calcLS()"></div>
+          <div class="field"><label>Investment Period (Years)</label><input type="number" id="ls-years" value="10" oninput="calcLS()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Invested</div><div class="metric-val blue" id="ls-invested">—</div></div>
+          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val green" id="ls-maturity" style="font-size:26px">—</div></div>
+          <div class="metric"><div class="metric-label">Absolute Returns</div><div class="metric-val green" id="ls-abs">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Growth curve</h3><div class="chart-wrap"><canvas id="lsChart"></canvas></div></div>
+    </div>
+
+    <!-- SWP -->
+    <div id="tab-swp" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Initial Investment (₹)</label><input type="number" id="swp-corpus" value="5000000" oninput="calcSWP()"></div>
+          <div class="field"><label>Monthly Withdrawal (₹)</label><input type="number" id="swp-wd" value="30000" oninput="calcSWP()"></div>
+          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="swp-rate" value="10" step="0.5" oninput="calcSWP()"></div>
+          <div class="field"><label>Withdrawal Period (Years)</label><input type="number" id="swp-years" value="20" oninput="calcSWP()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Total Withdrawn</div><div class="metric-val green" id="swp-total">—</div></div>
+          <div class="metric"><div class="metric-label">Remaining Corpus</div><div class="metric-val blue" id="swp-remain">—</div></div>
+          <div class="metric"><div class="metric-label">Status</div><div class="metric-val amber" id="swp-sustain">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Corpus depletion</h3><div class="chart-wrap"><canvas id="swpChart"></canvas></div></div>
+    </div>
+
+    <!-- Goal -->
+    <div id="tab-goal" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Goal Name</label><input type="text" id="goal-name" value="Child Education" oninput="calcGoal()"></div>
+          <div class="field"><label>Target Amount (₹)</label><input type="number" id="goal-target" value="5000000" oninput="calcGoal()"></div>
+          <div class="field"><label>Time to Goal (Years)</label><input type="number" id="goal-years" value="15" oninput="calcGoal()"></div>
+          <div class="field"><label>Expected Return (%)</label><input type="number" id="goal-rate" value="12" step="0.5" oninput="calcGoal()"></div>
+          <div class="field"><label>Existing Savings (₹)</label><input type="number" id="goal-exist" value="0" oninput="calcGoal()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">SIP Required</div><div class="metric-val blue" id="goal-sip" style="font-size:24px">—</div></div>
+          <div class="metric"><div class="metric-label">Or Lumpsum Now</div><div class="metric-val amber" id="goal-ls">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Goal corpus build-up</h3><div class="chart-wrap"><canvas id="goalChart"></canvas></div></div>
+    </div>
+
+    <!-- ELSS -->
+    <div id="tab-elss" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Annual Investment in ELSS (₹)</label><input type="number" id="elss-inv" value="150000" oninput="calcELSS()"></div>
+          <div class="field"><label>Tax Bracket (%)</label><select id="elss-tax" onchange="calcELSS()"><option value="5">5%</option><option value="20">20%</option><option value="30" selected>30%</option></select></div>
+          <div class="field"><label>Expected Return (%)</label><input type="number" id="elss-rate" value="14" step="0.5" oninput="calcELSS()"></div>
+          <div class="field"><label>Investment Period (Years)</label><input type="number" id="elss-years" value="10" oninput="calcELSS()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Tax Saved per year</div><div class="metric-val green" id="elss-saved">—</div></div>
+          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val blue" id="elss-maturity">—</div></div>
+          <div class="metric"><div class="metric-label">Effective Cost after Tax</div><div class="metric-val amber" id="elss-eff">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>ELSS vs FD comparison</h3><div class="chart-wrap"><canvas id="elssChart"></canvas></div></div>
+    </div>
+
+    <!-- Inflation -->
+    <div id="tab-inflation" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>Current Amount (₹)</label><input type="number" id="inf-amt" value="100000" oninput="calcInflation()"></div>
+          <div class="field"><label>Inflation Rate (%)</label><input type="number" id="inf-rate" value="6" step="0.5" oninput="calcInflation()"></div>
+          <div class="field"><label>Years</label><input type="number" id="inf-years" value="20" oninput="calcInflation()"></div>
+          <div class="field"><label>Investment Return (%)</label><input type="number" id="inf-inv" value="12" step="0.5" oninput="calcInflation()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Future Need (inflation)</div><div class="metric-val amber" id="inf-future">—</div></div>
+          <div class="metric"><div class="metric-label">If Invested at given %</div><div class="metric-val green" id="inf-real">—</div></div>
+          <div class="metric"><div class="metric-label">Purchasing Power Loss</div><div class="metric-val red" id="inf-loss">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Inflation vs investment growth</h3><div class="chart-wrap"><canvas id="inflationChart"></canvas></div></div>
+    </div>
+
+    <!-- Loan vs SIP -->
+    <div id="tab-loan" class="hidden">
+      <div class="grid2">
+        <div>
+          <div class="field"><label>EMI Amount (₹)</label><input type="number" id="loan-emi" value="20000" oninput="calcLoan()"></div>
+          <div class="field"><label>Loan Interest Rate (%)</label><input type="number" id="loan-rate" value="9" step="0.5" oninput="calcLoan()"></div>
+          <div class="field"><label>Tenure (Years)</label><input type="number" id="loan-years" value="10" oninput="calcLoan()"></div>
+          <div class="field"><label>MF Return (%)</label><input type="number" id="loan-mf" value="12" step="0.5" oninput="calcLoan()"></div>
+        </div>
+        <div>
+          <div class="metric"><div class="metric-label">Total Loan Cost</div><div class="metric-val red" id="loan-total">—</div></div>
+          <div class="metric"><div class="metric-label">SIP Wealth Created</div><div class="metric-val green" id="loan-mfval">—</div></div>
+          <div class="metric"><div class="metric-label">Opportunity Cost</div><div class="metric-val amber" id="loan-opp">—</div></div>
+        </div>
+      </div>
+      <div class="card"><h3>Loan vs SIP comparison</h3><div class="chart-wrap"><canvas id="loanChart"></canvas></div></div>
+    </div>
+
+    <!-- PDF -->
+    <div id="tab-pdf" class="hidden">
+      <div class="card">
+        <h3>Client Details</h3>
+        <div class="grid2">
+          <div class="field"><label>Client Name</label><input type="text" id="pdf-client" value="Rajesh Patel"></div>
+          <div class="field"><label>Client Mobile</label><input type="text" id="pdf-mobile" value="98XXXXXXXX"></div>
+          <div class="field"><label>Risk Profile</label><select id="pdf-risk"><option>Conservative</option><option selected>Moderate</option><option>Aggressive</option></select></div>
+          <div class="field"><label>Investment Horizon</label><select id="pdf-horizon"><option>Short Term</option><option selected>Medium Term</option><option>Long Term</option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Advisor Details</h3>
+        <div class="grid2">
+          <div class="field"><label>Advisor Name</label><input type="text" id="pdf-advisor" value="Your Name"></div>
+          <div class="field"><label>ARN Number</label><input type="text" id="pdf-arn" value="ARN-XXXXXX"></div>
+          <div class="field"><label>Contact</label><input type="text" id="pdf-contact" value="9X-XXXXXXXX"></div>
+          <div class="field"><label>Firm Name</label><input type="text" id="pdf-firm" value="Your Firm"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Fund Recommendations</h3>
+        <div class="field"><label>Fund 1</label><input type="text" id="f1" value="Parag Parikh Flexi Cap Fund"></div>
+        <div class="field"><label>Fund 2</label><input type="text" id="f2" value="Mirae Asset Large Cap Fund"></div>
+        <div class="field"><label>Fund 3</label><input type="text" id="f3" value="Axis Mid Cap Fund"></div>
+        <div class="field"><label>Fund 4 (optional)</label><input type="text" id="f4" value=""></div>
+      </div>
+      <div class="card">
+        <h3>Include in PDF</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1rem">
+          <label><input type="checkbox" id="inc-sip" checked> SIP Projection</label>
+          <label><input type="checkbox" id="inc-goal" checked> Goal Plan</label>
+          <label><input type="checkbox" id="inc-elss"> ELSS / Tax</label>
+          <label><input type="checkbox" id="inc-inflation"> Inflation</label>
+          <label><input type="checkbox" id="inc-swp"> SWP Plan</label>
+          <label><input type="checkbox" id="inc-loan"> Loan vs SIP</label>
+        </div>
+        <button class="pdf-btn" onclick="generatePDF()">📄 Generate PDF Report</button>
+      </div>
+      <div id="pdf-preview" style="display:none;margin-top:1rem"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fmtCr=n=>{if(n>=10000000)return'₹'+(n/10000000).toFixed(2)+' Cr';if(n>=100000)return'₹'+(n/100000).toFixed(1)+'L';return fmt(n)};
+const charts={};
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function lineChart(id,labels,datasets){
+  dc(id);
+  charts[id]=new Chart(document.getElementById(id),{
+    type:'line',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>fmtCr(v)},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false},ticks:{autoSkip:true,maxTicksLimit:8}}}}
+  });
+}
+function barChart(id,labels,data,colors){
+  dc(id);
+  charts[id]=new Chart(document.getElementById(id),{
+    type:'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>fmtCr(v)},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}}}
+  });
+}
+
+function showTab(t,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const fns={sip:calcSIP,lumpsum:calcLS,swp:calcSWP,goal:calcGoal,elss:calcELSS,inflation:calcInflation,loan:calcLoan};
+  if(fns[t]) fns[t]();
+}
+
+function calcSIP(){
+  const P=+document.getElementById('sip-amt').value||0;
+  const r=+document.getElementById('sip-rate').value||0;
+  const y=+document.getElementById('sip-years').value||0;
+  const step=+document.getElementById('sip-step').value||0;
+  const rm=r/12/100;
+  let inv=0,val=0,monthly=P;
+  const labels=[],invArr=[],valArr=[];
+  const tb=document.getElementById('sip-table');tb.innerHTML='';
+  for(let yr=1;yr<=y;yr++){
+    for(let m=0;m<12;m++){inv+=monthly;val=(val+monthly)*(1+rm);}
+    labels.push('Yr '+yr);invArr.push(Math.round(inv));valArr.push(Math.round(val));
+    tb.innerHTML+=`<tr><td>${yr}</td><td>${fmtCr(inv)}</td><td>${fmtCr(val-inv)}</td><td><strong>${fmtCr(val)}</strong></td></tr>`;
+    if(step>0)monthly*=(1+step/100);
+  }
+  document.getElementById('sip-invested').textContent=fmtCr(inv);
+  document.getElementById('sip-gain').textContent=fmtCr(val-inv);
+  document.getElementById('sip-maturity').textContent=fmtCr(val);
+  lineChart('sipChart',labels,[
+    {label:'Invested',data:invArr,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0},
+    {label:'Value',data:valArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0}
+  ]);
+}
+
+function calcLS(){
+  const P=+document.getElementById('ls-amt').value||0;
+  const r=+document.getElementById('ls-rate').value||0;
+  const y=+document.getElementById('ls-years').value||0;
+  const labels=[],valArr=[];
+  for(let i=0;i<=y;i++){labels.push(i===0?'Now':'Yr '+i);valArr.push(Math.round(P*Math.pow(1+r/100,i)));}
+  const mat=valArr[y];
+  document.getElementById('ls-invested').textContent=fmt(P);
+  document.getElementById('ls-maturity').textContent=fmtCr(mat);
+  document.getElementById('ls-abs').textContent=((mat-P)/P*100).toFixed(1)+'%';
+  lineChart('lsChart',labels,[{label:'Value',data:valArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.12)',fill:true,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3B6D11'}]);
+}
+
+function calcSWP(){
+  const corpus=+document.getElementById('swp-corpus').value||0;
+  const wd=+document.getElementById('swp-wd').value||0;
+  const r=+document.getElementById('swp-rate').value||0;
+  const y=+document.getElementById('swp-years').value||0;
+  const rm=r/12/100;
+  let bal=corpus,totalWd=0;
+  const labels=['Start'],balArr=[Math.round(bal)];
+  for(let yr=1;yr<=y;yr++){
+    for(let m=0;m<12;m++){bal=bal*(1+rm)-wd;totalWd+=wd;if(bal<0){bal=0;break;}}
+    labels.push('Yr '+yr);balArr.push(Math.round(Math.max(bal,0)));
+    if(bal<=0)break;
+  }
+  document.getElementById('swp-total').textContent=fmtCr(totalWd);
+  document.getElementById('swp-remain').textContent=bal>0?fmtCr(bal):'Depleted';
+  document.getElementById('swp-sustain').textContent=bal>0?'Sustainable':'Corpus runs out!';
+  lineChart('swpChart',labels,[{label:'Balance',data:balArr,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0}]);
+}
+
+function calcGoal(){
+  const target=+document.getElementById('goal-target').value||0;
+  const y=+document.getElementById('goal-years').value||0;
+  const r=+document.getElementById('goal-rate').value||0;
+  const exist=+document.getElementById('goal-exist').value||0;
+  const n=y*12,rm=r/12/100;
+  const futExist=exist*Math.pow(1+r/100,y);
+  const rem=Math.max(target-futExist,0);
+  const sipReq=rem*rm/(Math.pow(1+rm,n)-1);
+  const lsReq=rem/Math.pow(1+r/100,y);
+  document.getElementById('goal-sip').textContent=fmt(sipReq)+'/mo';
+  document.getElementById('goal-ls').textContent=fmtCr(lsReq);
+  const labels=[],sipArr=[],goalLine=[];
+  for(let i=0;i<=y;i++){
+    labels.push(i===0?'Now':'Yr '+i);
+    sipArr.push(Math.round(sipReq*(Math.pow(1+rm,i*12)-1)/rm+exist*Math.pow(1+r/100,i)));
+    goalLine.push(Math.round(target));
+  }
+  lineChart('goalChart',labels,[
+    {label:'Corpus',data:sipArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.4,borderWidth:2,pointRadius:0},
+    {label:'Target',data:goalLine,borderColor:'#E24B4A',borderDash:[6,3],borderWidth:1.5,pointRadius:0,fill:false}
+  ]);
+}
+
+function calcELSS(){
+  const inv=+document.getElementById('elss-inv').value||0;
+  const tax=+document.getElementById('elss-tax').value||30;
+  const r=+document.getElementById('elss-rate').value||0;
+  const y=+document.getElementById('elss-years').value||0;
+  const taxSaved=Math.min(inv,150000)*tax/100*1.04;
+  const mat=inv*((Math.pow(1+r/100,y)-1)/(r/100))*(1+r/100);
+  const fdMat=inv*((Math.pow(1.07,y)-1)/0.07)*1.07;
+  document.getElementById('elss-saved').textContent=fmt(taxSaved);
+  document.getElementById('elss-maturity').textContent=fmtCr(mat);
+  document.getElementById('elss-eff').textContent=fmt(inv-taxSaved)+'/yr';
+  barChart('elssChart',['ELSS Return','FD Return'],[Math.round(mat),Math.round(fdMat)],['#185FA5','#888780']);
+}
+
+function calcInflation(){
+  const amt=+document.getElementById('inf-amt').value||0;
+  const infR=+document.getElementById('inf-rate').value||0;
+  const y=+document.getElementById('inf-years').value||0;
+  const invR=+document.getElementById('inf-inv').value||0;
+  const futNeed=amt*Math.pow(1+infR/100,y);
+  const invGrow=amt*Math.pow(1+invR/100,y);
+  document.getElementById('inf-future').textContent=fmtCr(futNeed);
+  document.getElementById('inf-real').textContent=fmtCr(invGrow);
+  document.getElementById('inf-loss').textContent=((1-amt/futNeed)*100).toFixed(1)+'%';
+  const labels=[],infArr=[],invArr=[];
+  for(let i=0;i<=y;i++){
+    labels.push(i===0?'Now':'Yr '+i);
+    infArr.push(Math.round(amt*Math.pow(1+infR/100,i)));
+    invArr.push(Math.round(amt*Math.pow(1+invR/100,i)));
+  }
+  lineChart('inflationChart',labels,[
+    {label:'Need',data:infArr,borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',fill:true,tension:0.4,borderWidth:2,pointRadius:0},
+    {label:'Investment',data:invArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.4,borderWidth:2,pointRadius:0}
+  ]);
+}
+
+function calcLoan(){
+  const emi=+document.getElementById('loan-emi').value||0;
+  const y=+document.getElementById('loan-years').value||0;
+  const mfR=+document.getElementById('loan-mf').value||0;
+  const n=y*12,rm=mfR/12/100;
+  const totalLoan=emi*n;
+  const mfVal=emi*(Math.pow(1+rm,n)-1)/rm;
+  document.getElementById('loan-total').textContent=fmtCr(totalLoan);
+  document.getElementById('loan-mfval').textContent=fmtCr(mfVal);
+  document.getElementById('loan-opp').textContent=fmtCr(mfVal-totalLoan);
+  barChart('loanChart',['Loan Paid','SIP Wealth'],[Math.round(totalLoan),Math.round(mfVal)],['#E24B4A','#185FA5']);
+}
+
+function generatePDF(){
+  const client=document.getElementById('pdf-client').value;
+  const advisor=document.getElementById('pdf-advisor').value;
+  const arn=document.getElementById('pdf-arn').value;
+  const firm=document.getElementById('pdf-firm').value;
+  const risk=document.getElementById('pdf-risk').value;
+  const horizon=document.getElementById('pdf-horizon').value;
+  const mobile=document.getElementById('pdf-mobile').value;
+  const contact=document.getElementById('pdf-contact').value;
+  const funds=[document.getElementById('f1').value,document.getElementById('f2').value,document.getElementById('f3').value,document.getElementById('f4').value].filter(f=>f.trim());
+  const P=+document.getElementById('sip-amt').value||0;
+  const r=+document.getElementById('sip-rate').value||0;
+  const y=+document.getElementById('sip-years').value||0;
+  const n=y*12,rm=r/12/100;
+  const sipMat=P*(Math.pow(1+rm,n)-1)/rm;
+  const sipInv=P*n;
+  const goalTarget=+document.getElementById('goal-target').value||0;
+  const goalY=+document.getElementById('goal-years').value||0;
+  const goalR=+document.getElementById('goal-rate').value||0;
+  const goalRM=goalR/12/100;
+  const goalN=goalY*12;
+  const goalSIP=goalTarget*goalRM/(Math.pow(1+goalRM,goalN)-1);
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const prev=document.getElementById('pdf-preview');
+  prev.style.display='block';
+  prev.innerHTML=`
+  <div style="background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;font-family:system-ui,sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #0C447C">
+      <div><div style="font-size:22px;font-weight:600;color:#0C447C">${firm}</div>
+      <div style="font-size:13px;color:#888">${advisor} | ${arn} | ${contact}</div></div>
+      <div style="text-align:right"><div style="font-size:11px;color:#888">Date: ${today}</div>
+      <div style="background:#E6F1FB;color:#0C447C;font-size:12px;padding:4px 10px;border-radius:20px;margin-top:4px">Personalised Report</div></div>
+    </div>
+    <div style="background:#f5f7fa;border-radius:8px;padding:1rem;margin-bottom:1.5rem">
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px">Prepared for: <span style="color:#185FA5">${client}</span></div>
+      <div style="display:flex;gap:20px;font-size:13px;flex-wrap:wrap">
+        <span><span style="color:#888">Mobile: </span>${mobile}</span>
+        <span><span style="color:#888">Risk: </span>${risk}</span>
+        <span><span style="color:#888">Horizon: </span>${horizon}</span>
+      </div>
+    </div>
+    ${funds.length?`<div style="margin-bottom:1.5rem"><div style="font-size:13px;font-weight:500;color:#888;margin-bottom:8px">Recommended Funds</div><div style="display:flex;flex-wrap:wrap;gap:8px">${funds.map(f=>`<span style="background:#E6F1FB;color:#0C447C;padding:5px 12px;border-radius:20px;font-size:13px">${f}</span>`).join('')}</div></div>`:''}
+    ${document.getElementById('inc-sip').checked?`<div style="margin-bottom:1rem;padding:1rem;border:1px solid #eee;border-radius:8px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">SIP Projection</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Monthly SIP</div><div style="font-size:16px;font-weight:500;color:#185FA5">${fmt(P)}</div></div>
+        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Total Invested</div><div style="font-size:16px;font-weight:500">${fmtCr(sipInv)}</div></div>
+        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Maturity Value</div><div style="font-size:16px;font-weight:500;color:#3B6D11">${fmtCr(sipMat)}</div></div>
+      </div></div>`:''}
+    ${document.getElementById('inc-goal').checked?`<div style="margin-bottom:1rem;padding:1rem;border:1px solid #eee;border-radius:8px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Goal Plan — ${document.getElementById('goal-name').value}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Goal Amount</div><div style="font-size:16px;font-weight:500;color:#A32D2D">${fmtCr(goalTarget)}</div></div>
+        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Required SIP</div><div style="font-size:16px;font-weight:500;color:#185FA5">${fmt(goalSIP)}/mo</div></div>
+      </div></div>`:''}
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center">
+      Mutual fund investments are subject to market risks. Please read all scheme related documents carefully. Prepared by ${advisor} (${arn}).
+    </div>
+  </div>
+  <button onclick="window.print()" style="width:100%;margin-top:1rem;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">🖨️ Print / Save as PDF</button>
+  `;
+}
+
+calcSIP();
+</script>
+</body>
+</html>
