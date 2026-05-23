@@ -2,283 +2,440 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MF Advisor Pro</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/1.119.0/iconfont/tabler-icons.min.css">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0C447C">
+<title>MF Calculator Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;font-size:14px;background:#f5f7fa;color:#1a1a1a}
-.wrap{max-width:900px;margin:0 auto;padding:0 0 2rem}
-.top-bar{background:#0C447C;color:#fff;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-radius:0 0 12px 12px}
-.top-bar h1{font-size:18px;font-weight:500}
-.top-bar p{font-size:12px;opacity:0.75;margin-top:2px}
-.advisor-badge{background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px;font-size:12px;text-align:center}
-.nav{display:flex;gap:4px;overflow-x:auto;padding:1rem 1.5rem 0;scrollbar-width:none;border-bottom:1px solid #e0e0e0;background:#fff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:#f0f4f8;color:#1a2332;min-height:100vh}
+.app{max-width:600px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column}
+/* TOP BAR */
+.topbar{background:#0C447C;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.topbar h1{font-size:17px;font-weight:600;letter-spacing:.3px}
+.topbar p{font-size:11px;opacity:.75;margin-top:1px}
+.topbar-brand{font-size:13px;font-weight:600;background:rgba(255,255,255,.15);padding:5px 10px;border-radius:6px;cursor:pointer}
+/* NAV */
+.nav{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex:0 0 auto;padding:8px 14px;border:none;background:transparent;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
-.nav-btn.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:500}
-.content{padding:1.5rem;background:#fff;margin:1rem;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.field{margin-bottom:1rem}
-.field label{display:block;font-size:12px;color:#666;margin-bottom:4px}
-.field input,.field select{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a}
-.field input:focus,.field select:focus{outline:none;border-color:#185FA5}
-.calc-btn{width:100%;padding:11px;background:#185FA5;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px}
-.calc-btn:hover{background:#0C447C}
-.metric{background:#f5f7fa;border-radius:8px;padding:14px;text-align:center;margin-bottom:10px}
-.metric-label{font-size:11px;color:#888;margin-bottom:4px}
-.metric-val{font-size:22px;font-weight:500;color:#1a1a1a}
-.metric-val.green{color:#3B6D11}
-.metric-val.blue{color:#185FA5}
-.metric-val.amber{color:#854F0B}
-.metric-val.red{color:#A32D2D}
-.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
-.card h3{font-size:14px;font-weight:500;margin-bottom:1rem;color:#555}
-.chart-wrap{position:relative;width:100%;height:260px;margin:1rem 0}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
-th{text-align:left;font-weight:500;font-size:12px;color:#888;padding:8px 10px;border-bottom:1px solid #eee}
-td{padding:8px 10px;border-bottom:1px solid #eee;color:#1a1a1a}
+.nav-btn{flex:0 0 auto;padding:10px 14px;border:none;background:none;font-size:12.5px;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;font-weight:500;white-space:nowrap}
+.nav-btn.active{color:#0C447C;border-bottom-color:#0C447C;font-weight:600}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:0}
+.tab{display:none;padding:16px}
+.tab.active{display:block}
+/* FIELDS */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;color:#64748b;margin-bottom:4px;font-weight:500}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;color:#1a2332;background:#fff;outline:none}
+.field input:focus,.field select:focus{border-color:#0C447C;box-shadow:0 0 0 3px rgba(12,68,124,.1)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.metrics.three{grid-template-columns:1fr 1fr 1fr}
+.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
+.metric-label{font-size:10.5px;color:#64748b;margin-bottom:3px;font-weight:500}
+.metric-val{font-size:20px;font-weight:700;color:#1a2332}
+.metric-val.blue{color:#0C447C}
+.metric-val.green{color:#16a34a}
+.metric-val.amber{color:#b45309}
+.metric-val.red{color:#dc2626}
+.metric-big{grid-column:1/-1;background:linear-gradient(135deg,#0C447C,#185FA5);border:none}
+.metric-big .metric-label{color:rgba(255,255,255,.8)}
+.metric-big .metric-val{color:#fff;font-size:26px}
+/* CARD */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px}
+.card h3{font-size:12px;color:#64748b;font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+/* CHART */
+.chart-wrap{position:relative;height:220px;margin:4px 0}
+/* BUTTONS */
+.btn-row{display:flex;gap:8px;margin-top:4px}
+.btn{padding:11px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-pdf{background:#0C447C;color:#fff}
+.btn-pdf:active{background:#083358}
+.btn-xl{background:#16a34a;color:#fff}
+.btn-xl:active{background:#15803d}
+.btn-outline{background:#fff;color:#0C447C;border:1.5px solid #0C447C}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#f8fafc;padding:8px 10px;text-align:left;font-size:11px;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0}
+td{padding:8px 10px;border-bottom:1px solid #f1f5f9;color:#374151}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#f9f9f9}
-.hidden{display:none}
-.pdf-btn{width:100%;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.pdf-btn:hover{background:#185FA5}
-.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
+tr:hover td{background:#f8fafc}
+td:last-child,th:last-child{font-weight:600;color:#0C447C}
+/* SCENARIO INPUTS */
+.scenario-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:12px}
+.scenario-box p{font-size:11px;color:#64748b;font-weight:600;margin-bottom:8px;text-transform:uppercase}
+/* SETTINGS */
+.settings-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px}
+.settings-card h3{font-size:13px;font-weight:700;color:#0C447C;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.save-btn{width:100%;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px}
+.save-btn:active{background:#083358}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;display:none;white-space:nowrap}
+/* DIVIDER */
+.divider{height:1px;background:#f1f5f9;margin:14px 0}
+/* INFO ROW */
+.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
 .info-row:last-child{border-bottom:none}
-.info-row span:first-child{color:#888}
-.info-row span:last-child{font-weight:500}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}.content{margin:0.5rem;padding:1rem}}
+.info-row span:first-child{color:#64748b}
+.info-row span:last-child{font-weight:600}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top-bar">
-    <div>
-      <h1>📈 MF Advisor Pro</h1>
-      <p>All-in-one Mutual Fund Calculator</p>
-    </div>
-    <div class="advisor-badge">
-      <div style="font-size:11px;opacity:0.75">Advisor</div>
-      <div style="font-size:13px;font-weight:500">Dashboard</div>
-    </div>
+<div class="app">
+<div class="topbar">
+  <div>
+    <h1>📊 MF Calculator Pro</h1>
+    <p>All-in-One Mutual Fund Calculator</p>
   </div>
+  <div class="topbar-brand" onclick="showTab('settings')">⚙️ Settings</div>
+</div>
 
-  <div class="nav">
-    <button class="nav-btn active" onclick="showTab('sip',this)">SIP</button>
-    <button class="nav-btn" onclick="showTab('lumpsum',this)">Lumpsum</button>
-    <button class="nav-btn" onclick="showTab('swp',this)">SWP</button>
-    <button class="nav-btn" onclick="showTab('goal',this)">Goal Plan</button>
-    <button class="nav-btn" onclick="showTab('elss',this)">ELSS / Tax</button>
-    <button class="nav-btn" onclick="showTab('inflation',this)">Inflation</button>
-    <button class="nav-btn" onclick="showTab('loan',this)">Loan vs SIP</button>
-    <button class="nav-btn" onclick="showTab('pdf',this)">📄 PDF Report</button>
+<div class="nav" id="mainNav">
+  <button class="nav-btn active" onclick="showTab('sip',this)">SIP</button>
+  <button class="nav-btn" onclick="showTab('lumpsum',this)">Lumpsum</button>
+  <button class="nav-btn" onclick="showTab('swp',this)">SWP</button>
+  <button class="nav-btn" onclick="showTab('revswp',this)">Rev-SWP</button>
+  <button class="nav-btn" onclick="showTab('goal',this)">Goal</button>
+  <button class="nav-btn" onclick="showTab('ltsip',this)">Ltd-SIP</button>
+  <button class="nav-btn" onclick="showTab('onesip',this)">One+SIP</button>
+  <button class="nav-btn" onclick="showTab('elss',this)">ELSS</button>
+  <button class="nav-btn" onclick="showTab('inflation',this)">Inflation</button>
+  <button class="nav-btn" onclick="showTab('loan',this)">Loan vs SIP</button>
+  <button class="nav-btn" onclick="showTab('settings',this)">⚙️</button>
+</div>
+
+<div class="content">
+
+<!-- ===== SIP ===== -->
+<div id="tab-sip" class="tab active">
+  <div class="grid2">
+    <div class="field"><label>Monthly SIP (₹)</label><input type="number" id="sip-amt" value="10000" oninput="calcSIP()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="sip-rate" value="12" step="0.5" oninput="calcSIP()"></div>
+    <div class="field"><label>Period (Years)</label><input type="number" id="sip-years" value="15" oninput="calcSIP()"></div>
+    <div class="field"><label>Step-up % p.a.</label><input type="number" id="sip-step" value="0" oninput="calcSIP()"></div>
   </div>
-
-  <div class="content">
-
-    <!-- SIP -->
-    <div id="tab-sip">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Monthly SIP Amount (₹)</label><input type="number" id="sip-amt" value="10000" oninput="calcSIP()"></div>
-          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="sip-rate" value="12" step="0.5" oninput="calcSIP()"></div>
-          <div class="field"><label>Investment Period (Years)</label><input type="number" id="sip-years" value="15" oninput="calcSIP()"></div>
-          <div class="field"><label>Step-up SIP (% per year)</label><input type="number" id="sip-step" value="0" oninput="calcSIP()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Total Invested</div><div class="metric-val blue" id="sip-invested">—</div></div>
-          <div class="metric"><div class="metric-label">Wealth Gained</div><div class="metric-val green" id="sip-gain">—</div></div>
-          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val green" id="sip-maturity" style="font-size:26px">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Growth projection</h3><div class="chart-wrap"><canvas id="sipChart"></canvas></div></div>
-      <div class="card"><h3>Year-wise table</h3><div style="overflow-x:auto"><table><thead><tr><th>Year</th><th>Invested (₹)</th><th>Returns (₹)</th><th>Value (₹)</th></tr></thead><tbody id="sip-table"></tbody></table></div></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Invested</div><div class="metric-val blue" id="sip-inv">—</div></div>
+    <div class="metric"><div class="metric-label">Wealth Gained</div><div class="metric-val green" id="sip-gain">—</div></div>
+    <div class="metric metric-big"><div class="metric-label">Maturity Value</div><div class="metric-val" id="sip-mat">—</div></div>
+  </div>
+  <div class="card"><h3>Growth Chart</h3><div class="chart-wrap"><canvas id="sipChart"></canvas></div></div>
+  <div class="card"><h3>Year-wise Projection</h3><div class="tbl-wrap"><table><thead><tr><th>Year</th><th>Invested</th><th>Returns</th><th>Value</th></tr></thead><tbody id="sip-tbl"></tbody></table></div></div>
+  <div class="scenario-box">
+    <p>📄 PDF Proposal — 2 Scenarios</p>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="sip-client" value="Client Name"></div>
+      <div class="field"><label>Scenario 1 Rate %</label><input type="number" id="sip-s1" value="12" step="0.5"></div>
+      <div class="field"><label>Scenario 2 Rate %</label><input type="number" id="sip-s2" value="15" step="0.5"></div>
     </div>
-
-    <!-- Lumpsum -->
-    <div id="tab-lumpsum" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Lumpsum Amount (₹)</label><input type="number" id="ls-amt" value="500000" oninput="calcLS()"></div>
-          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="ls-rate" value="12" step="0.5" oninput="calcLS()"></div>
-          <div class="field"><label>Investment Period (Years)</label><input type="number" id="ls-years" value="10" oninput="calcLS()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Invested</div><div class="metric-val blue" id="ls-invested">—</div></div>
-          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val green" id="ls-maturity" style="font-size:26px">—</div></div>
-          <div class="metric"><div class="metric-label">Absolute Returns</div><div class="metric-val green" id="ls-abs">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Growth curve</h3><div class="chart-wrap"><canvas id="lsChart"></canvas></div></div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" onclick="pdfSIP()">📄 PDF Proposal</button>
+      <button class="btn btn-xl" onclick="xlSIP()">📊 Excel</button>
     </div>
-
-    <!-- SWP -->
-    <div id="tab-swp" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Initial Investment (₹)</label><input type="number" id="swp-corpus" value="5000000" oninput="calcSWP()"></div>
-          <div class="field"><label>Monthly Withdrawal (₹)</label><input type="number" id="swp-wd" value="30000" oninput="calcSWP()"></div>
-          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="swp-rate" value="10" step="0.5" oninput="calcSWP()"></div>
-          <div class="field"><label>Withdrawal Period (Years)</label><input type="number" id="swp-years" value="20" oninput="calcSWP()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Total Withdrawn</div><div class="metric-val green" id="swp-total">—</div></div>
-          <div class="metric"><div class="metric-label">Remaining Corpus</div><div class="metric-val blue" id="swp-remain">—</div></div>
-          <div class="metric"><div class="metric-label">Status</div><div class="metric-val amber" id="swp-sustain">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Corpus depletion</h3><div class="chart-wrap"><canvas id="swpChart"></canvas></div></div>
-    </div>
-
-    <!-- Goal -->
-    <div id="tab-goal" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Goal Name</label><input type="text" id="goal-name" value="Child Education" oninput="calcGoal()"></div>
-          <div class="field"><label>Target Amount (₹)</label><input type="number" id="goal-target" value="5000000" oninput="calcGoal()"></div>
-          <div class="field"><label>Time to Goal (Years)</label><input type="number" id="goal-years" value="15" oninput="calcGoal()"></div>
-          <div class="field"><label>Expected Return (%)</label><input type="number" id="goal-rate" value="12" step="0.5" oninput="calcGoal()"></div>
-          <div class="field"><label>Existing Savings (₹)</label><input type="number" id="goal-exist" value="0" oninput="calcGoal()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">SIP Required</div><div class="metric-val blue" id="goal-sip" style="font-size:24px">—</div></div>
-          <div class="metric"><div class="metric-label">Or Lumpsum Now</div><div class="metric-val amber" id="goal-ls">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Goal corpus build-up</h3><div class="chart-wrap"><canvas id="goalChart"></canvas></div></div>
-    </div>
-
-    <!-- ELSS -->
-    <div id="tab-elss" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Annual Investment in ELSS (₹)</label><input type="number" id="elss-inv" value="150000" oninput="calcELSS()"></div>
-          <div class="field"><label>Tax Bracket (%)</label><select id="elss-tax" onchange="calcELSS()"><option value="5">5%</option><option value="20">20%</option><option value="30" selected>30%</option></select></div>
-          <div class="field"><label>Expected Return (%)</label><input type="number" id="elss-rate" value="14" step="0.5" oninput="calcELSS()"></div>
-          <div class="field"><label>Investment Period (Years)</label><input type="number" id="elss-years" value="10" oninput="calcELSS()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Tax Saved per year</div><div class="metric-val green" id="elss-saved">—</div></div>
-          <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val blue" id="elss-maturity">—</div></div>
-          <div class="metric"><div class="metric-label">Effective Cost after Tax</div><div class="metric-val amber" id="elss-eff">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>ELSS vs FD comparison</h3><div class="chart-wrap"><canvas id="elssChart"></canvas></div></div>
-    </div>
-
-    <!-- Inflation -->
-    <div id="tab-inflation" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>Current Amount (₹)</label><input type="number" id="inf-amt" value="100000" oninput="calcInflation()"></div>
-          <div class="field"><label>Inflation Rate (%)</label><input type="number" id="inf-rate" value="6" step="0.5" oninput="calcInflation()"></div>
-          <div class="field"><label>Years</label><input type="number" id="inf-years" value="20" oninput="calcInflation()"></div>
-          <div class="field"><label>Investment Return (%)</label><input type="number" id="inf-inv" value="12" step="0.5" oninput="calcInflation()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Future Need (inflation)</div><div class="metric-val amber" id="inf-future">—</div></div>
-          <div class="metric"><div class="metric-label">If Invested at given %</div><div class="metric-val green" id="inf-real">—</div></div>
-          <div class="metric"><div class="metric-label">Purchasing Power Loss</div><div class="metric-val red" id="inf-loss">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Inflation vs investment growth</h3><div class="chart-wrap"><canvas id="inflationChart"></canvas></div></div>
-    </div>
-
-    <!-- Loan vs SIP -->
-    <div id="tab-loan" class="hidden">
-      <div class="grid2">
-        <div>
-          <div class="field"><label>EMI Amount (₹)</label><input type="number" id="loan-emi" value="20000" oninput="calcLoan()"></div>
-          <div class="field"><label>Loan Interest Rate (%)</label><input type="number" id="loan-rate" value="9" step="0.5" oninput="calcLoan()"></div>
-          <div class="field"><label>Tenure (Years)</label><input type="number" id="loan-years" value="10" oninput="calcLoan()"></div>
-          <div class="field"><label>MF Return (%)</label><input type="number" id="loan-mf" value="12" step="0.5" oninput="calcLoan()"></div>
-        </div>
-        <div>
-          <div class="metric"><div class="metric-label">Total Loan Cost</div><div class="metric-val red" id="loan-total">—</div></div>
-          <div class="metric"><div class="metric-label">SIP Wealth Created</div><div class="metric-val green" id="loan-mfval">—</div></div>
-          <div class="metric"><div class="metric-label">Opportunity Cost</div><div class="metric-val amber" id="loan-opp">—</div></div>
-        </div>
-      </div>
-      <div class="card"><h3>Loan vs SIP comparison</h3><div class="chart-wrap"><canvas id="loanChart"></canvas></div></div>
-    </div>
-
-    <!-- PDF -->
-    <div id="tab-pdf" class="hidden">
-      <div class="card">
-        <h3>Client Details</h3>
-        <div class="grid2">
-          <div class="field"><label>Client Name</label><input type="text" id="pdf-client" value="Rajesh Patel"></div>
-          <div class="field"><label>Client Mobile</label><input type="text" id="pdf-mobile" value="98XXXXXXXX"></div>
-          <div class="field"><label>Risk Profile</label><select id="pdf-risk"><option>Conservative</option><option selected>Moderate</option><option>Aggressive</option></select></div>
-          <div class="field"><label>Investment Horizon</label><select id="pdf-horizon"><option>Short Term</option><option selected>Medium Term</option><option>Long Term</option></select></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Advisor Details</h3>
-        <div class="grid2">
-          <div class="field"><label>Advisor Name</label><input type="text" id="pdf-advisor" value="Your Name"></div>
-          <div class="field"><label>ARN Number</label><input type="text" id="pdf-arn" value="ARN-XXXXXX"></div>
-          <div class="field"><label>Contact</label><input type="text" id="pdf-contact" value="9X-XXXXXXXX"></div>
-          <div class="field"><label>Firm Name</label><input type="text" id="pdf-firm" value="Your Firm"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Fund Recommendations</h3>
-        <div class="field"><label>Fund 1</label><input type="text" id="f1" value="Parag Parikh Flexi Cap Fund"></div>
-        <div class="field"><label>Fund 2</label><input type="text" id="f2" value="Mirae Asset Large Cap Fund"></div>
-        <div class="field"><label>Fund 3</label><input type="text" id="f3" value="Axis Mid Cap Fund"></div>
-        <div class="field"><label>Fund 4 (optional)</label><input type="text" id="f4" value=""></div>
-      </div>
-      <div class="card">
-        <h3>Include in PDF</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1rem">
-          <label><input type="checkbox" id="inc-sip" checked> SIP Projection</label>
-          <label><input type="checkbox" id="inc-goal" checked> Goal Plan</label>
-          <label><input type="checkbox" id="inc-elss"> ELSS / Tax</label>
-          <label><input type="checkbox" id="inc-inflation"> Inflation</label>
-          <label><input type="checkbox" id="inc-swp"> SWP Plan</label>
-          <label><input type="checkbox" id="inc-loan"> Loan vs SIP</label>
-        </div>
-        <button class="pdf-btn" onclick="generatePDF()">📄 Generate PDF Report</button>
-      </div>
-      <div id="pdf-preview" style="display:none;margin-top:1rem"></div>
-    </div>
-
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
-const fmtCr=n=>{if(n>=10000000)return'₹'+(n/10000000).toFixed(2)+' Cr';if(n>=100000)return'₹'+(n/100000).toFixed(1)+'L';return fmt(n)};
-const charts={};
-function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-function lineChart(id,labels,datasets){
-  dc(id);
-  charts[id]=new Chart(document.getElementById(id),{
-    type:'line',data:{labels,datasets},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{ticks:{callback:v=>fmtCr(v)},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false},ticks:{autoSkip:true,maxTicksLimit:8}}}}
-  });
-}
-function barChart(id,labels,data,colors){
-  dc(id);
-  charts[id]=new Chart(document.getElementById(id),{
-    type:'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:8,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{ticks:{callback:v=>fmtCr(v)},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}}}
-  });
-}
+<!-- ===== LUMPSUM ===== -->
+<div id="tab-lumpsum" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Lumpsum Amount (₹)</label><input type="number" id="ls-amt" value="500000" oninput="calcLS()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="ls-rate" value="12" step="0.5" oninput="calcLS()"></div>
+    <div class="field"><label>Period (Years)</label><input type="number" id="ls-years" value="10" oninput="calcLS()"></div>
+  </div>
+  <div class="metrics three">
+    <div class="metric"><div class="metric-label">Invested</div><div class="metric-val blue" id="ls-inv">—</div></div>
+    <div class="metric"><div class="metric-label">Maturity</div><div class="metric-val green" id="ls-mat">—</div></div>
+    <div class="metric"><div class="metric-label">Abs Return</div><div class="metric-val amber" id="ls-abs">—</div></div>
+  </div>
+  <div class="card"><h3>Growth Chart</h3><div class="chart-wrap"><canvas id="lsChart"></canvas></div></div>
+  <div class="scenario-box">
+    <p>📄 PDF Proposal — 2 Scenarios</p>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="ls-client" value="Client Name"></div>
+      <div class="field"><label>Scenario 1 Rate %</label><input type="number" id="ls-s1" value="10" step="0.5"></div>
+      <div class="field"><label>Scenario 2 Rate %</label><input type="number" id="ls-s2" value="12" step="0.5"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" onclick="pdfLS()">📄 PDF Proposal</button>
+      <button class="btn btn-xl" onclick="xlLS()">📊 Excel</button>
+    </div>
+  </div>
+</div>
 
-function showTab(t,btn){
-  document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));
-  document.getElementById('tab-'+t).classList.remove('hidden');
+<!-- ===== SWP ===== -->
+<div id="tab-swp" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Initial Corpus (₹)</label><input type="number" id="swp-corpus" value="5000000" oninput="calcSWP()"></div>
+    <div class="field"><label>Monthly Withdrawal (₹)</label><input type="number" id="swp-wd" value="30000" oninput="calcSWP()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="swp-rate" value="10" step="0.5" oninput="calcSWP()"></div>
+    <div class="field"><label>Withdrawal Period (Yrs)</label><input type="number" id="swp-years" value="20" oninput="calcSWP()"></div>
+    <div class="field"><label>Balance Required at End (₹)</label><input type="number" id="swp-end" value="0" oninput="calcSWP()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Withdrawn</div><div class="metric-val green" id="swp-total">—</div></div>
+    <div class="metric"><div class="metric-label">Remaining Corpus</div><div class="metric-val blue" id="swp-remain">—</div></div>
+    <div class="metric metric-big"><div class="metric-label">Monthly SWP Possible</div><div class="metric-val" id="swp-possible">—</div></div>
+  </div>
+  <div class="card"><h3>Corpus Depletion</h3><div class="chart-wrap"><canvas id="swpChart"></canvas></div></div>
+  <div class="btn-row">
+    <button class="btn btn-pdf" onclick="pdfSWP()">📄 PDF Proposal</button>
+    <button class="btn btn-xl" onclick="xlSWP()">📊 Excel</button>
+  </div>
+</div>
+
+<!-- ===== REVERSE SWP ===== -->
+<div id="tab-revswp" class="tab">
+  <div class="card"><h3>Lumpsum Required for Target SWP</h3></div>
+  <div class="grid2">
+    <div class="field"><label>SWP Amount Needed (₹/mo)</label><input type="number" id="rswp-wd" value="20000" oninput="calcRevSWP()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="rswp-rate" value="10" step="0.5" oninput="calcRevSWP()"></div>
+    <div class="field"><label>Withdrawal Period (Yrs)</label><input type="number" id="rswp-years" value="20" oninput="calcRevSWP()"></div>
+    <div class="field"><label>Balance Required at End (₹)</label><input type="number" id="rswp-end" value="0" oninput="calcRevSWP()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-big"><div class="metric-label">Lumpsum Investment Required</div><div class="metric-val" id="rswp-req">—</div></div>
+    <div class="metric"><div class="metric-label">Total Withdrawal</div><div class="metric-val green" id="rswp-total">—</div></div>
+    <div class="metric"><div class="metric-label">Wealth Multiplier</div><div class="metric-val amber" id="rswp-mult">—</div></div>
+  </div>
+  <div class="scenario-box">
+    <p>📄 PDF Proposal — 2 Scenarios</p>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="rswp-client" value="Client Name"></div>
+      <div class="field"><label>Scenario 1 Rate %</label><input type="number" id="rswp-s1" value="8" step="0.5"></div>
+      <div class="field"><label>Scenario 2 Rate %</label><input type="number" id="rswp-s2" value="10" step="0.5"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" onclick="pdfRevSWP()">📄 PDF Proposal</button>
+      <button class="btn btn-xl" onclick="xlRevSWP()">📊 Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GOAL ===== -->
+<div id="tab-goal" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Goal Name</label><input type="text" id="goal-name" value="Child Education" oninput="calcGoal()"></div>
+    <div class="field"><label>Target Amount (₹)</label><input type="number" id="goal-target" value="5000000" oninput="calcGoal()"></div>
+    <div class="field"><label>Time to Goal (Years)</label><input type="number" id="goal-years" value="15" oninput="calcGoal()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="goal-rate" value="12" step="0.5" oninput="calcGoal()"></div>
+    <div class="field"><label>Existing Savings (₹)</label><input type="number" id="goal-exist" value="0" oninput="calcGoal()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-big"><div class="metric-label">SIP Required per Month</div><div class="metric-val" id="goal-sip">—</div></div>
+    <div class="metric"><div class="metric-label">Or Lumpsum Now</div><div class="metric-val amber" id="goal-ls">—</div></div>
+    <div class="metric"><div class="metric-label">Existing Savings FV</div><div class="metric-val green" id="goal-fv">—</div></div>
+  </div>
+  <div class="card"><h3>Goal Progress</h3><div class="chart-wrap"><canvas id="goalChart"></canvas></div></div>
+  <div class="scenario-box">
+    <p>📄 PDF Proposal — 2 Scenarios</p>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="goal-client" value="Client Name"></div>
+      <div class="field"><label>Scenario 1 Rate %</label><input type="number" id="goal-s1" value="12" step="0.5"></div>
+      <div class="field"><label>Scenario 2 Rate %</label><input type="number" id="goal-s2" value="15" step="0.5"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" onclick="pdfGoal()">📄 PDF Proposal</button>
+      <button class="btn btn-xl" onclick="xlGoal()">📊 Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LIMITED PERIOD SIP ===== -->
+<div id="tab-ltsip" class="tab">
+  <div class="card"><h3>Limited Period SIP for Future Goal</h3></div>
+  <div class="grid2">
+    <div class="field"><label>Target Amount (₹)</label><input type="number" id="lt-target" value="7500000" oninput="calcLtSIP()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="lt-rate" value="15" step="0.5" oninput="calcLtSIP()"></div>
+    <div class="field"><label>SIP Period (Years)</label><input type="number" id="lt-sip" value="10" oninput="calcLtSIP()"></div>
+    <div class="field"><label>Deferment Period (Years)</label><input type="number" id="lt-defer" value="10" oninput="calcLtSIP()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-big"><div class="metric-label">SIP Required per Month</div><div class="metric-val" id="lt-reqsip">—</div></div>
+    <div class="metric"><div class="metric-label">Total SIP Invested</div><div class="metric-val blue" id="lt-inv">—</div></div>
+    <div class="metric"><div class="metric-label">Corpus after SIP Period</div><div class="metric-val amber" id="lt-mid">—</div></div>
+    <div class="metric"><div class="metric-label">Multiplier After Deferment</div><div class="metric-val green" id="lt-mult">—</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="info-row"><span>SIP Period</span><span id="lt-sipyrs">—</span></div>
+  <div class="info-row"><span>Deferment Period</span><span id="lt-defyrs">—</span></div>
+  <div class="info-row"><span>Final Target</span><span id="lt-final">—</span></div>
+  <div class="btn-row" style="margin-top:14px">
+    <button class="btn btn-pdf" onclick="pdfLtSIP()">📄 PDF Proposal</button>
+    <button class="btn btn-xl" onclick="xlLtSIP()">📊 Excel</button>
+  </div>
+</div>
+
+<!-- ===== ONETIME + SIP ===== -->
+<div id="tab-onesip" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Onetime Investment (₹)</label><input type="number" id="os-one" value="500000" oninput="calcOneSIP()"></div>
+    <div class="field"><label>Monthly SIP (₹)</label><input type="number" id="os-sip" value="10000" oninput="calcOneSIP()"></div>
+    <div class="field"><label>Return % p.a.</label><input type="number" id="os-rate" value="12" step="0.5" oninput="calcOneSIP()"></div>
+    <div class="field"><label>Period (Years)</label><input type="number" id="os-years" value="20" oninput="calcOneSIP()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-big"><div class="metric-label">Total Future Value</div><div class="metric-val" id="os-fv">—</div></div>
+    <div class="metric"><div class="metric-label">Onetime FV</div><div class="metric-val blue" id="os-one-fv">—</div></div>
+    <div class="metric"><div class="metric-label">SIP FV</div><div class="metric-val green" id="os-sip-fv">—</div></div>
+    <div class="metric"><div class="metric-label">Total Invested</div><div class="metric-val amber" id="os-inv">—</div></div>
+  </div>
+  <div class="card"><h3>Growth Chart</h3><div class="chart-wrap"><canvas id="osChart"></canvas></div></div>
+  <div class="divider"></div>
+  <div class="card"><h3>Reverse: Onetime Required (SIP Known)</h3>
+    <div class="grid2">
+      <div class="field"><label>Target Amount (₹)</label><input type="number" id="os-target" value="30000000" oninput="calcOneReq()"></div>
+      <div class="field"><label>Known SIP (₹/mo)</label><input type="number" id="os-knownsip" value="5000" oninput="calcOneReq()"></div>
+      <div class="field"><label>Return % p.a.</label><input type="number" id="os-rrate" value="15" step="0.5" oninput="calcOneReq()"></div>
+      <div class="field"><label>Period (Years)</label><input type="number" id="os-ryears" value="20" oninput="calcOneReq()"></div>
+    </div>
+    <div class="metrics" style="margin-top:8px">
+      <div class="metric metric-big"><div class="metric-label">Onetime Investment Required</div><div class="metric-val" id="os-req">—</div></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-pdf" onclick="pdfOneSIP()">📄 PDF Proposal</button>
+    <button class="btn btn-xl" onclick="xlOneSIP()">📊 Excel</button>
+  </div>
+</div>
+
+<!-- ===== ELSS ===== -->
+<div id="tab-elss" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Annual ELSS Investment (₹)</label><input type="number" id="elss-inv" value="150000" oninput="calcELSS()"></div>
+    <div class="field"><label>Tax Bracket</label><select id="elss-tax" onchange="calcELSS()"><option value="5">5%</option><option value="20">20%</option><option value="30" selected>30%</option></select></div>
+    <div class="field"><label>Expected Return % p.a.</label><input type="number" id="elss-rate" value="14" step="0.5" oninput="calcELSS()"></div>
+    <div class="field"><label>Period (Years)</label><input type="number" id="elss-years" value="10" oninput="calcELSS()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Tax Saved/Year</div><div class="metric-val green" id="elss-saved">—</div></div>
+    <div class="metric"><div class="metric-label">Maturity Value</div><div class="metric-val blue" id="elss-mat">—</div></div>
+    <div class="metric metric-big"><div class="metric-label">Effective Cost After Tax Saving</div><div class="metric-val" id="elss-eff">—</div></div>
+  </div>
+  <div class="card"><h3>ELSS vs FD Comparison</h3><div class="chart-wrap"><canvas id="elssChart"></canvas></div></div>
+</div>
+
+<!-- ===== INFLATION ===== -->
+<div id="tab-inflation" class="tab">
+  <div class="grid2">
+    <div class="field"><label>Current Amount (₹)</label><input type="number" id="inf-amt" value="100000" oninput="calcInflation()"></div>
+    <div class="field"><label>Inflation Rate %</label><input type="number" id="inf-rate" value="6" step="0.5" oninput="calcInflation()"></div>
+    <div class="field"><label>Years</label><input type="number" id="inf-years" value="20" oninput="calcInflation()"></div>
+    <div class="field"><label>Investment Return %</label><input type="number" id="inf-inv" value="12" step="0.5" oninput="calcInflation()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-big"><div class="metric-label">Future Value Needed (Inflation-adjusted)</div><div class="metric-val" id="inf-future">—</div></div>
+    <div class="metric"><div class="metric-label">Investment Grows To</div><div class="metric-val green" id="inf-real">—</div></div>
+    <div class="metric"><div class="metric-label">Purchasing Power Loss</div><div class="metric-val red" id="inf-loss">—</div></div>
+  </div>
+  <div class="card"><h3>Inflation vs Investment</h3><div class="chart-wrap"><canvas id="inflationChart"></canvas></div></div>
+</div>
+
+<!-- ===== LOAN vs SIP ===== -->
+<div id="tab-loan" class="tab">
+  <div class="grid2">
+    <div class="field"><label>EMI Amount (₹/mo)</label><input type="number" id="loan-emi" value="15000" oninput="calcLoan()"></div>
+    <div class="field"><label>Loan Rate % p.a.</label><input type="number" id="loan-rate" value="9" step="0.5" oninput="calcLoan()"></div>
+    <div class="field"><label>Loan Period (Years)</label><input type="number" id="loan-years" value="5" oninput="calcLoan()"></div>
+    <div class="field"><label>MF Expected Return %</label><input type="number" id="loan-mf" value="12" step="0.5" oninput="calcLoan()"></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total Loan Paid</div><div class="metric-val red" id="loan-total">—</div></div>
+    <div class="metric"><div class="metric-label">SIP Wealth Created</div><div class="metric-val green" id="loan-mfval">—</div></div>
+    <div class="metric metric-big"><div class="metric-label">Opportunity Cost</div><div class="metric-val" id="loan-opp">—</div></div>
+  </div>
+  <div class="card"><h3>Loan vs SIP</h3><div class="chart-wrap"><canvas id="loanChart"></canvas></div></div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div id="tab-settings" class="tab">
+  <div class="settings-card">
+    <h3>👤 Advisor Profile</h3>
+    <div class="field"><label>Your Name</label><input type="text" id="set-name" placeholder="Jayesh Rathod"></div>
+    <div class="field"><label>ARN Number</label><input type="text" id="set-arn" placeholder="ARN-285194"></div>
+    <div class="field"><label>Mobile</label><input type="tel" id="set-mobile" placeholder="9724459885"></div>
+    <div class="field"><label>Email ID</label><input type="email" id="set-email" placeholder="email@example.com"></div>
+    <div class="field"><label>Brand / Firm Name (Watermark)</label><input type="text" id="set-brand" placeholder="MASTERSTROKE"></div>
+    <div class="field"><label>Custom Line (tagline / qualification)</label><input type="text" id="set-custom" placeholder="AMFI-Registered Mutual Fund Distributor"></div>
+  </div>
+  <div class="settings-card">
+    <h3>📄 PDF Disclaimer</h3>
+    <div class="field"><label>Disclaimer Text</label>
+      <textarea id="set-disc" rows="3" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;resize:vertical">This illustration is on the basis of your request. Returns are neither indicative nor guaranteed. Mutual Fund investments are subject to market risks. Please read all scheme related documents carefully.</textarea>
+    </div>
+  </div>
+  <button class="save-btn" onclick="saveSettings()">💾 Save Settings</button>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== UTILS ====================
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const fmtC = n => {
+  if(n>=10000000) return '₹'+(n/10000000).toFixed(2)+' Cr';
+  if(n>=100000) return '₹'+(n/100000).toFixed(2)+' L';
+  return fmt(n);
+};
+const fmtCshort = n => {
+  if(n>=10000000) return (n/10000000).toFixed(2)+' Cr';
+  if(n>=100000) return (n/100000).toFixed(1)+' L';
+  return Math.round(n).toLocaleString('en-IN');
+};
+const charts = {};
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function showToast(msg,dur=2000){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',dur);}
+
+// ==================== SETTINGS ====================
+function loadSettings(){
+  const d=JSON.parse(localStorage.getItem('mfset')||'{}');
+  document.getElementById('set-name').value=d.name||'';
+  document.getElementById('set-arn').value=d.arn||'';
+  document.getElementById('set-mobile').value=d.mobile||'';
+  document.getElementById('set-email').value=d.email||'';
+  document.getElementById('set-brand').value=d.brand||'';
+  document.getElementById('set-custom').value=d.custom||'';
+  if(d.disc) document.getElementById('set-disc').value=d.disc;
+  // Update topbar brand
+  const b=document.querySelector('.topbar-brand');
+  if(d.brand) b.textContent=d.brand;
+}
+function saveSettings(){
+  const d={
+    name:document.getElementById('set-name').value,
+    arn:document.getElementById('set-arn').value,
+    mobile:document.getElementById('set-mobile').value,
+    email:document.getElementById('set-email').value,
+    brand:document.getElementById('set-brand').value,
+    custom:document.getElementById('set-custom').value,
+    disc:document.getElementById('set-disc').value
+  };
+  localStorage.setItem('mfset',JSON.stringify(d));
+  if(d.brand) document.querySelector('.topbar-brand').textContent=d.brand;
+  showToast('✅ Settings Saved!');
+}
+function getSettings(){return JSON.parse(localStorage.getItem('mfset')||'{}');}
+
+// ==================== TAB ====================
+function showTab(t, btn){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const fns={sip:calcSIP,lumpsum:calcLS,swp:calcSWP,goal:calcGoal,elss:calcELSS,inflation:calcInflation,loan:calcLoan};
+  document.getElementById('tab-'+t).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const fns={sip:calcSIP,lumpsum:calcLS,swp:calcSWP,revswp:calcRevSWP,goal:calcGoal,ltsip:calcLtSIP,onesip:()=>{calcOneSIP();calcOneReq();},elss:calcELSS,inflation:calcInflation,loan:calcLoan};
   if(fns[t]) fns[t]();
 }
 
+// ==================== SIP ====================
 function calcSIP(){
   const P=+document.getElementById('sip-amt').value||0;
   const r=+document.getElementById('sip-rate').value||0;
@@ -286,191 +443,630 @@ function calcSIP(){
   const step=+document.getElementById('sip-step').value||0;
   const rm=r/12/100;
   let inv=0,val=0,monthly=P;
-  const labels=[],invArr=[],valArr=[];
-  const tb=document.getElementById('sip-table');tb.innerHTML='';
+  const labels=[],ia=[],va=[];
+  const tb=document.getElementById('sip-tbl'); tb.innerHTML='';
   for(let yr=1;yr<=y;yr++){
     for(let m=0;m<12;m++){inv+=monthly;val=(val+monthly)*(1+rm);}
-    labels.push('Yr '+yr);invArr.push(Math.round(inv));valArr.push(Math.round(val));
-    tb.innerHTML+=`<tr><td>${yr}</td><td>${fmtCr(inv)}</td><td>${fmtCr(val-inv)}</td><td><strong>${fmtCr(val)}</strong></td></tr>`;
-    if(step>0)monthly*=(1+step/100);
+    labels.push('Y'+yr); ia.push(Math.round(inv)); va.push(Math.round(val));
+    tb.innerHTML+=`<tr><td>${yr}</td><td>${fmtC(inv)}</td><td>${fmtC(val-inv)}</td><td>${fmtC(val)}</td></tr>`;
+    if(step>0) monthly*=(1+step/100);
   }
-  document.getElementById('sip-invested').textContent=fmtCr(inv);
-  document.getElementById('sip-gain').textContent=fmtCr(val-inv);
-  document.getElementById('sip-maturity').textContent=fmtCr(val);
-  lineChart('sipChart',labels,[
-    {label:'Invested',data:invArr,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0},
-    {label:'Value',data:valArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0}
-  ]);
+  document.getElementById('sip-inv').textContent=fmtC(inv);
+  document.getElementById('sip-gain').textContent=fmtC(val-inv);
+  document.getElementById('sip-mat').textContent=fmtC(val);
+  dc('sip');
+  charts['sip']=new Chart(document.getElementById('sipChart'),{type:'line',data:{labels,datasets:[
+    {label:'Invested',data:ia,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,.15)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+    {label:'Value',data:va,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
 }
 
+// ==================== LUMPSUM ====================
 function calcLS(){
   const P=+document.getElementById('ls-amt').value||0;
   const r=+document.getElementById('ls-rate').value||0;
   const y=+document.getElementById('ls-years').value||0;
-  const labels=[],valArr=[];
-  for(let i=0;i<=y;i++){labels.push(i===0?'Now':'Yr '+i);valArr.push(Math.round(P*Math.pow(1+r/100,i)));}
-  const mat=valArr[y];
-  document.getElementById('ls-invested').textContent=fmt(P);
-  document.getElementById('ls-maturity').textContent=fmtCr(mat);
+  const labels=[],va=[];
+  for(let i=0;i<=y;i++){labels.push(i===0?'Now':'Y'+i);va.push(Math.round(P*Math.pow(1+r/100,i)));}
+  const mat=va[y];
+  document.getElementById('ls-inv').textContent=fmtC(P);
+  document.getElementById('ls-mat').textContent=fmtC(mat);
   document.getElementById('ls-abs').textContent=((mat-P)/P*100).toFixed(1)+'%';
-  lineChart('lsChart',labels,[{label:'Value',data:valArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.12)',fill:true,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3B6D11'}]);
+  dc('ls');
+  charts['ls']=new Chart(document.getElementById('lsChart'),{type:'line',data:{labels,datasets:[{label:'Value',data:va,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false}}}}});
 }
 
+// ==================== SWP ====================
 function calcSWP(){
   const corpus=+document.getElementById('swp-corpus').value||0;
   const wd=+document.getElementById('swp-wd').value||0;
   const r=+document.getElementById('swp-rate').value||0;
   const y=+document.getElementById('swp-years').value||0;
   const rm=r/12/100;
-  let bal=corpus,totalWd=0;
-  const labels=['Start'],balArr=[Math.round(bal)];
+  let bal=corpus,total=0;
+  const labels=['Start'],ba=[Math.round(bal)];
   for(let yr=1;yr<=y;yr++){
-    for(let m=0;m<12;m++){bal=bal*(1+rm)-wd;totalWd+=wd;if(bal<0){bal=0;break;}}
-    labels.push('Yr '+yr);balArr.push(Math.round(Math.max(bal,0)));
+    for(let m=0;m<12;m++){bal=bal*(1+rm)-wd;total+=wd;if(bal<0){bal=0;break;}}
+    labels.push('Y'+yr);ba.push(Math.round(Math.max(bal,0)));
     if(bal<=0)break;
   }
-  document.getElementById('swp-total').textContent=fmtCr(totalWd);
-  document.getElementById('swp-remain').textContent=bal>0?fmtCr(bal):'Depleted';
-  document.getElementById('swp-sustain').textContent=bal>0?'Sustainable':'Corpus runs out!';
-  lineChart('swpChart',labels,[{label:'Balance',data:balArr,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.1)',fill:true,tension:0.3,borderWidth:2,pointRadius:0}]);
+  // Max possible SWP
+  const maxSWP=corpus*rm*(1+rm)/(Math.pow(1+rm,y*12)-1);
+  document.getElementById('swp-total').textContent=fmtC(total);
+  document.getElementById('swp-remain').textContent=bal>0?fmtC(bal):'Depleted';
+  document.getElementById('swp-possible').textContent=fmtC(maxSWP)+'/mo';
+  dc('swp');
+  charts['swp']=new Chart(document.getElementById('swpChart'),{type:'line',data:{labels,datasets:[{label:'Balance',data:ba,borderColor:'#0C447C',backgroundColor:'rgba(12,68,124,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
 }
 
+// ==================== REVERSE SWP ====================
+function calcRevSWP(){
+  const wd=+document.getElementById('rswp-wd').value||0;
+  const r=+document.getElementById('rswp-rate').value||0;
+  const y=+document.getElementById('rswp-years').value||0;
+  const endBal=+document.getElementById('rswp-end').value||0;
+  const rm=r/12/100; const n=y*12;
+  const req=wd*(1-Math.pow(1+rm,-n))/rm + endBal*Math.pow(1+rm,-n);
+  const total=wd*n;
+  document.getElementById('rswp-req').textContent=fmtC(req);
+  document.getElementById('rswp-total').textContent=fmtC(total);
+  document.getElementById('rswp-mult').textContent=req>0?(total/req).toFixed(2)+'x':'—';
+}
+
+// ==================== GOAL ====================
 function calcGoal(){
   const target=+document.getElementById('goal-target').value||0;
   const y=+document.getElementById('goal-years').value||0;
   const r=+document.getElementById('goal-rate').value||0;
   const exist=+document.getElementById('goal-exist').value||0;
-  const n=y*12,rm=r/12/100;
-  const futExist=exist*Math.pow(1+r/100,y);
-  const rem=Math.max(target-futExist,0);
+  const rm=r/12/100; const n=y*12;
+  const fvExist=exist*Math.pow(1+r/100,y);
+  const rem=Math.max(target-fvExist,0);
   const sipReq=rem*rm/(Math.pow(1+rm,n)-1);
   const lsReq=rem/Math.pow(1+r/100,y);
   document.getElementById('goal-sip').textContent=fmt(sipReq)+'/mo';
-  document.getElementById('goal-ls').textContent=fmtCr(lsReq);
-  const labels=[],sipArr=[],goalLine=[];
+  document.getElementById('goal-ls').textContent=fmtC(lsReq);
+  document.getElementById('goal-fv').textContent=fmtC(fvExist);
+  const labels=[],sa=[],gl=[];
   for(let i=0;i<=y;i++){
-    labels.push(i===0?'Now':'Yr '+i);
-    sipArr.push(Math.round(sipReq*(Math.pow(1+rm,i*12)-1)/rm+exist*Math.pow(1+r/100,i)));
-    goalLine.push(Math.round(target));
+    labels.push(i===0?'Now':'Y'+i);
+    sa.push(Math.round(sipReq>0?sipReq*(Math.pow(1+rm,i*12)-1)/rm+exist*Math.pow(1+r/100,i):exist*Math.pow(1+r/100,i)));
+    gl.push(Math.round(target));
   }
-  lineChart('goalChart',labels,[
-    {label:'Corpus',data:sipArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.4,borderWidth:2,pointRadius:0},
-    {label:'Target',data:goalLine,borderColor:'#E24B4A',borderDash:[6,3],borderWidth:1.5,pointRadius:0,fill:false}
-  ]);
+  dc('goal');
+  charts['goal']=new Chart(document.getElementById('goalChart'),{type:'line',data:{labels,datasets:[
+    {label:'Corpus',data:sa,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+    {label:'Target',data:gl,borderColor:'#dc2626',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
 }
 
+// ==================== LIMITED PERIOD SIP ====================
+function calcLtSIP(){
+  const target=+document.getElementById('lt-target').value||0;
+  const r=+document.getElementById('lt-rate').value||0;
+  const sipYrs=+document.getElementById('lt-sip').value||0;
+  const deferYrs=+document.getElementById('lt-defer').value||0;
+  const rm=r/12/100; const n=sipYrs*12; const R=r/100;
+  const deferFactor=Math.pow(1+R,deferYrs);
+  const sipFactor=(Math.pow(1+rm,n)-1)/rm;
+  const sipReq=target/(sipFactor*deferFactor);
+  const inv=sipReq*n;
+  const midCorpus=sipReq*sipFactor;
+  document.getElementById('lt-reqsip').textContent=fmt(sipReq)+'/mo';
+  document.getElementById('lt-inv').textContent=fmtC(inv);
+  document.getElementById('lt-mid').textContent=fmtC(midCorpus);
+  document.getElementById('lt-mult').textContent=(target/inv).toFixed(2)+'x';
+  document.getElementById('lt-sipyrs').textContent=sipYrs+' Years';
+  document.getElementById('lt-defyrs').textContent=deferYrs+' Years (no fresh investment)';
+  document.getElementById('lt-final').textContent=fmtC(target);
+}
+
+// ==================== ONETIME + SIP ====================
+function calcOneSIP(){
+  const one=+document.getElementById('os-one').value||0;
+  const sip=+document.getElementById('os-sip').value||0;
+  const r=+document.getElementById('os-rate').value||0;
+  const y=+document.getElementById('os-years').value||0;
+  const rm=r/12/100; const n=y*12;
+  const oneFV=one*Math.pow(1+r/100,y);
+  const sipFV=sip*(Math.pow(1+rm,n)-1)/rm;
+  const totalFV=oneFV+sipFV;
+  const totalInv=one+sip*n;
+  document.getElementById('os-fv').textContent=fmtC(totalFV);
+  document.getElementById('os-one-fv').textContent=fmtC(oneFV);
+  document.getElementById('os-sip-fv').textContent=fmtC(sipFV);
+  document.getElementById('os-inv').textContent=fmtC(totalInv);
+  const labels=[],oa=[],sa=[],ta=[];
+  for(let i=0;i<=y;i++){
+    labels.push(i===0?'Now':'Y'+i);
+    const o=one*Math.pow(1+r/100,i);
+    const s=i>0?sip*(Math.pow(1+rm,i*12)-1)/rm:0;
+    oa.push(Math.round(o)); sa.push(Math.round(s)); ta.push(Math.round(o+s));
+  }
+  dc('os');
+  charts['os']=new Chart(document.getElementById('osChart'),{type:'line',data:{labels,datasets:[
+    {label:'Onetime',data:oa,borderColor:'#0C447C',borderWidth:2,pointRadius:0,fill:false,tension:.4},
+    {label:'SIP',data:sa,borderColor:'#16a34a',borderWidth:2,pointRadius:0,fill:false,tension:.4},
+    {label:'Total',data:ta,borderColor:'#b45309',backgroundColor:'rgba(180,83,9,.08)',fill:true,borderWidth:2.5,pointRadius:0,tension:.4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
+}
+function calcOneReq(){
+  const target=+document.getElementById('os-target').value||0;
+  const sip=+document.getElementById('os-knownsip').value||0;
+  const r=+document.getElementById('os-rrate').value||0;
+  const y=+document.getElementById('os-ryears').value||0;
+  const rm=r/12/100; const n=y*12;
+  const sipFV=sip*(Math.pow(1+rm,n)-1)/rm;
+  const rem=target-sipFV;
+  const oneReq=rem/Math.pow(1+r/100,y);
+  document.getElementById('os-req').textContent=oneReq>0?fmtC(oneReq):'SIP alone is sufficient!';
+}
+
+// ==================== ELSS ====================
 function calcELSS(){
   const inv=+document.getElementById('elss-inv').value||0;
   const tax=+document.getElementById('elss-tax').value||30;
   const r=+document.getElementById('elss-rate').value||0;
   const y=+document.getElementById('elss-years').value||0;
-  const taxSaved=Math.min(inv,150000)*tax/100*1.04;
+  const maxD=Math.min(inv,150000);
+  const saved=maxD*tax/100*1.04;
   const mat=inv*((Math.pow(1+r/100,y)-1)/(r/100))*(1+r/100);
-  const fdMat=inv*((Math.pow(1.07,y)-1)/0.07)*1.07;
-  document.getElementById('elss-saved').textContent=fmt(taxSaved);
-  document.getElementById('elss-maturity').textContent=fmtCr(mat);
-  document.getElementById('elss-eff').textContent=fmt(inv-taxSaved)+'/yr';
-  barChart('elssChart',['ELSS Return','FD Return'],[Math.round(mat),Math.round(fdMat)],['#185FA5','#888780']);
+  document.getElementById('elss-saved').textContent=fmt(saved);
+  document.getElementById('elss-mat').textContent=fmtC(mat);
+  document.getElementById('elss-eff').textContent=fmt(inv-saved)+'/yr';
+  const fdMat=inv*((Math.pow(1+0.07,y)-1)/0.07)*(1+0.07);
+  dc('elss');
+  charts['elss']=new Chart(document.getElementById('elssChart'),{type:'bar',data:{labels:['ELSS','FD @ 7%'],datasets:[{data:[Math.round(mat),Math.round(fdMat)],backgroundColor:['#0C447C','#94a3b8'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false}}}}});
 }
 
+// ==================== INFLATION ====================
 function calcInflation(){
   const amt=+document.getElementById('inf-amt').value||0;
   const infR=+document.getElementById('inf-rate').value||0;
   const y=+document.getElementById('inf-years').value||0;
   const invR=+document.getElementById('inf-inv').value||0;
-  const futNeed=amt*Math.pow(1+infR/100,y);
-  const invGrow=amt*Math.pow(1+invR/100,y);
-  document.getElementById('inf-future').textContent=fmtCr(futNeed);
-  document.getElementById('inf-real').textContent=fmtCr(invGrow);
-  document.getElementById('inf-loss').textContent=((1-amt/futNeed)*100).toFixed(1)+'%';
-  const labels=[],infArr=[],invArr=[];
-  for(let i=0;i<=y;i++){
-    labels.push(i===0?'Now':'Yr '+i);
-    infArr.push(Math.round(amt*Math.pow(1+infR/100,i)));
-    invArr.push(Math.round(amt*Math.pow(1+invR/100,i)));
-  }
-  lineChart('inflationChart',labels,[
-    {label:'Need',data:infArr,borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',fill:true,tension:0.4,borderWidth:2,pointRadius:0},
-    {label:'Investment',data:invArr,borderColor:'#3B6D11',backgroundColor:'rgba(59,109,17,0.1)',fill:true,tension:0.4,borderWidth:2,pointRadius:0}
-  ]);
+  const fn=amt*Math.pow(1+infR/100,y);
+  const ig=amt*Math.pow(1+invR/100,y);
+  document.getElementById('inf-future').textContent=fmtC(fn);
+  document.getElementById('inf-real').textContent=fmtC(ig);
+  document.getElementById('inf-loss').textContent=((1-amt/fn)*100).toFixed(1)+'%';
+  const labels=[],ia=[],va=[];
+  for(let i=0;i<=y;i++){labels.push(i===0?'Now':'Y'+i);ia.push(Math.round(amt*Math.pow(1+infR/100,i)));va.push(Math.round(amt*Math.pow(1+invR/100,i)));}
+  dc('inflation');
+  charts['inflation']=new Chart(document.getElementById('inflationChart'),{type:'line',data:{labels,datasets:[
+    {label:'Future Need',data:ia,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+    {label:'Investment',data:va,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
 }
 
+// ==================== LOAN ====================
 function calcLoan(){
   const emi=+document.getElementById('loan-emi').value||0;
+  const r=+document.getElementById('loan-mf').value||0;
   const y=+document.getElementById('loan-years').value||0;
-  const mfR=+document.getElementById('loan-mf').value||0;
-  const n=y*12,rm=mfR/12/100;
-  const totalLoan=emi*n;
-  const mfVal=emi*(Math.pow(1+rm,n)-1)/rm;
-  document.getElementById('loan-total').textContent=fmtCr(totalLoan);
-  document.getElementById('loan-mfval').textContent=fmtCr(mfVal);
-  document.getElementById('loan-opp').textContent=fmtCr(mfVal-totalLoan);
-  barChart('loanChart',['Loan Paid','SIP Wealth'],[Math.round(totalLoan),Math.round(mfVal)],['#E24B4A','#185FA5']);
+  const n=y*12; const rm=r/12/100;
+  const total=emi*n;
+  const mfV=emi*(Math.pow(1+rm,n)-1)/rm;
+  document.getElementById('loan-total').textContent=fmtC(total);
+  document.getElementById('loan-mfval').textContent=fmtC(mfV);
+  document.getElementById('loan-opp').textContent=fmtC(mfV-total);
+  dc('loan');
+  charts['loan']=new Chart(document.getElementById('loanChart'),{type:'bar',data:{labels:['Loan Paid','SIP Wealth'],datasets:[{data:[Math.round(total),Math.round(mfV)],backgroundColor:['#dc2626','#0C447C'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtC(v),font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false}}}}});
 }
 
-function generatePDF(){
-  const client=document.getElementById('pdf-client').value;
-  const advisor=document.getElementById('pdf-advisor').value;
-  const arn=document.getElementById('pdf-arn').value;
-  const firm=document.getElementById('pdf-firm').value;
-  const risk=document.getElementById('pdf-risk').value;
-  const horizon=document.getElementById('pdf-horizon').value;
-  const mobile=document.getElementById('pdf-mobile').value;
-  const contact=document.getElementById('pdf-contact').value;
-  const funds=[document.getElementById('f1').value,document.getElementById('f2').value,document.getElementById('f3').value,document.getElementById('f4').value].filter(f=>f.trim());
+// ==================== PDF ENGINE ====================
+function getPDFSettings(){return getSettings();}
+function addPDFFooter(doc,s){
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  const m=14;
+  doc.setDrawColor(12,68,124); doc.setLineWidth(0.4);
+  doc.line(m,H-24,W-m,H-24);
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(12,68,124);
+  doc.text(s.name||'Advisor Name',W/2,H-19,{align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(60,60,60);
+  doc.text(s.custom||'AMFI-Registered Mutual Fund Distributor | '+(s.arn||'ARN-XXXXXX'),W/2,H-14.5,{align:'center'});
+  doc.text((s.email||'email@example.com')+'   '+(s.mobile||'9XXXXXXXXX'),W/2,H-10,{align:'center'});
+}
+function addPDFWatermark(doc,brand){
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  doc.saveGraphicsState();
+  doc.setGState(new doc.GState({opacity:.07}));
+  doc.setFont('helvetica','bold'); doc.setFontSize(52); doc.setTextColor(12,68,124);
+  doc.text(brand||'MY BRAND',W/2,H/2,{align:'center',angle:40});
+  doc.restoreGraphicsState();
+}
+function addPDFHeader(doc,title,sub){
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  doc.setFillColor(12,68,124);
+  doc.roundedRect(m,10,W-2*m,22,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(255,255,255);
+  doc.text(title,W/2,20,{align:'center'});
+  doc.setFontSize(10);
+  doc.text(sub,W/2,28,{align:'center'});
+}
+function todayStr(){return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+// ==================== SIP PDF ====================
+function pdfSIP(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const P=+document.getElementById('sip-amt').value||0;
+  const y=+document.getElementById('sip-years').value||0;
+  const step=+document.getElementById('sip-step').value||0;
+  const client=document.getElementById('sip-client').value||'Client';
+  const r1=+document.getElementById('sip-s1').value||12;
+  const r2=+document.getElementById('sip-s2').value||15;
+  const n=y*12;
+  function calcSIPFV(rate){
+    const rm=rate/12/100; let inv=0,val=0,monthly=P;
+    const rows=[];
+    for(let yr=1;yr<=y;yr++){
+      for(let m2=0;m2<12;m2++){inv+=monthly;val=(val+monthly)*(1+rm);}
+      rows.push([yr,'Rs '+fmtCshort(monthly*12),'Rs '+fmtCshort(val)]);
+      if(step>0) monthly*=(1+step/100);
+    }
+    return {mat:val,inv,rows};
+  }
+  const d1=calcSIPFV(r1); const d2=calcSIPFV(r2);
+
+  // PAGE 1
+  addPDFHeader(doc,'SIP Proposal','For '+client);
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255],fontStyle:'bold'},body:[['Monthly SIP Amount','Rs '+Math.round(P).toLocaleString('en-IN')],['SIP Period',y+' Years'],['Step-up',step>0?step+'% per year':'None'],['Report Date',todayStr()]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Monthly SIP — Maturity Value',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1.toFixed(2)} %`,`Scenario 2 @ ${r2.toFixed(2)} %`],['Rs '+fmtCshort(d1.mat),'Rs '+fmtCshort(d2.mat)]]});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Total Investment',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1.toFixed(2)} %`,`Scenario 2 @ ${r2.toFixed(2)} %`],['Rs '+fmtCshort(d1.inv),'Rs '+fmtCshort(d2.inv)]]});
+  y0=doc.lastAutoTable.finalY+8;
+  const disc=s.disc||'Mutual Fund investments are subject to market risks. Please read all scheme related documents carefully.';
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(80,80,80);
+  doc.text('*'+disc,m,y0,{maxWidth:W-2*m}); y0+=12;
+  doc.setFontSize(9); doc.setTextColor(60,60,60);
+  doc.text('Report Date : '+todayStr(),m,y0);
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+
+  // PAGE 2 — Year-wise table
+  doc.addPage();
+  doc.setFillColor(12,68,124);
+  doc.roundedRect(m,10,W-2*m,12,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text('Year-Wise Projected Value',W/2,18,{align:'center'});
+  const tRows=[];
+  for(let i=0;i<y;i++) tRows.push([d1.rows[i][0],d1.rows[i][1],d1.rows[i][2],d2.rows[i][1],d2.rows[i][2]]);
+  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:8.5,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255],fontStyle:'bold',fontSize:8},head:[['Year',`S1(${r1}%) Inv`,`S1 Value`,`S2(${r2}%) Inv`,`S2 Value`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+
+  // PAGE 3 — Chart
+  doc.addPage();
+  doc.setFillColor(12,68,124);
+  doc.roundedRect(m,10,W-2*m,12,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text('Graphic Representation',W/2,18,{align:'center'});
+  const cv=document.getElementById('sipChart');
+  if(cv){
+    try{doc.addImage(cv.toDataURL('image/png'),'PNG',m,28,W-2*m,90);}catch(e){}
+  }
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('SIP_Proposal_'+client+'.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== LUMPSUM PDF ====================
+function pdfLS(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const P=+document.getElementById('ls-amt').value||0;
+  const y=+document.getElementById('ls-years').value||0;
+  const client=document.getElementById('ls-client').value||'Client';
+  const r1=+document.getElementById('ls-s1').value||10;
+  const r2=+document.getElementById('ls-s2').value||12;
+  function lsFV(r){
+    const rows=[];
+    for(let i=1;i<=y;i++) rows.push([i,'Rs '+fmtCshort(P),'Rs '+fmtCshort(P*Math.pow(1+r/100,i))]);
+    return {mat:P*Math.pow(1+r/100,y),rows};
+  }
+  const d1=lsFV(r1); const d2=lsFV(r2);
+  addPDFHeader(doc,'Lumpsum Investment Proposal','For '+client);
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Investment Amount','Rs '+Math.round(P).toLocaleString('en-IN')],['Period',y+' Years'],['Report Date',todayStr()]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Maturity Value Comparison',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1}%`,`Scenario 2 @ ${r2}%`],['Rs '+fmtCshort(d1.mat),'Rs '+fmtCshort(d2.mat)],['Absolute Return: '+((d1.mat-P)/P*100).toFixed(1)+'%','Absolute Return: '+((d2.mat-P)/P*100).toFixed(1)+'%']]});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.addPage();
+  doc.setFillColor(12,68,124); doc.roundedRect(m,10,W-2*m,12,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text('Year-Wise Growth',W/2,18,{align:'center'});
+  const tRows=d1.rows.map((r,i)=>[r[0],r[1],r[2],d2.rows[i][2]]);
+  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year','Invested',`Value @${r1}%`,`Value @${r2}%`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('Lumpsum_Proposal_'+client+'.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== SWP PDF ====================
+function pdfSWP(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const corpus=+document.getElementById('swp-corpus').value||0;
+  const wd=+document.getElementById('swp-wd').value||0;
+  const r=+document.getElementById('swp-rate').value||0;
+  const y=+document.getElementById('swp-years').value||0;
+  const rm=r/12/100;
+  let bal=corpus,total=0;
+  const rows=[];
+  for(let yr=1;yr<=y;yr++){
+    for(let mm=0;mm<12;mm++){bal=bal*(1+rm)-wd;total+=wd;if(bal<0){bal=0;break;}}
+    rows.push([yr,'Rs '+fmtCshort(wd*12),'Rs '+fmtCshort(Math.max(bal,0))]);
+    if(bal<=0)break;
+  }
+  addPDFHeader(doc,'SWP Proposal','For Systematic Withdrawal Plan');
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Initial Corpus','Rs '+fmtCshort(corpus)],['Monthly Withdrawal','Rs '+fmtCshort(wd)],['Return Assumed',r+'% p.a.'],['Withdrawal Period',y+' Years'],['Remaining Balance','Rs '+fmtCshort(Math.max(bal,0))],['Total Withdrawn','Rs '+fmtCshort(total)]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.addPage();
+  doc.setFillColor(12,68,124); doc.roundedRect(m,10,W-2*m,12,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text('Year-Wise SWP Schedule',W/2,18,{align:'center'});
+  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year','Annual Withdrawal','Corpus Balance']],body:rows,alternateRowStyles:{fillColor:[245,249,255]}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('SWP_Proposal.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== GOAL PDF ====================
+function pdfGoal(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const target=+document.getElementById('goal-target').value||0;
+  const y=+document.getElementById('goal-years').value||0;
+  const exist=+document.getElementById('goal-exist').value||0;
+  const goalName=document.getElementById('goal-name').value||'Goal';
+  const client=document.getElementById('goal-client').value||'Client';
+  const r1=+document.getElementById('goal-s1').value||12;
+  const r2=+document.getElementById('goal-s2').value||15;
+  function gCalc(r){
+    const rm=r/12/100; const n=y*12;
+    const fve=exist*Math.pow(1+r/100,y);
+    const rem=Math.max(target-fve,0);
+    const sip=rem*rm/(Math.pow(1+rm,n)-1);
+    const rows=[];
+    let val=0,inv=0,monthly=sip;
+    for(let yr=1;yr<=y;yr++){
+      for(let mm=0;mm<12;mm++){inv+=monthly;val=(val+monthly)*(1+rm);}
+      rows.push([yr,'Rs '+fmtCshort(inv),'Rs '+fmtCshort(val)]);
+    }
+    return {sip,rows};
+  }
+  const d1=gCalc(r1); const d2=gCalc(r2);
+  addPDFHeader(doc,'Goal Planning — '+goalName,'For '+client);
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Target Amount','Rs '+fmtCshort(target)],['Time to Goal',y+' Years'],['Existing Savings','Rs '+fmtCshort(exist)],['Report Date',todayStr()]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Monthly SIP Required',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1}%`,`Scenario 2 @ ${r2}%`],['Rs '+fmtCshort(d1.sip)+'/mo','Rs '+fmtCshort(d2.sip)+'/mo']]});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.addPage();
+  doc.setFillColor(12,68,124); doc.roundedRect(m,10,W-2*m,12,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+  doc.text('Year-Wise Corpus Build-up',W/2,18,{align:'center'});
+  const tRows=d1.rows.map((r,i)=>[r[0],r[1],r[2],d2.rows[i][2]]);
+  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year',`S1(${r1}%) Invested`,`S1 Corpus`,`S2(${r2}%) Corpus`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('Goal_'+goalName+'_'+client+'.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== REV SWP PDF ====================
+function pdfRevSWP(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const wd=+document.getElementById('rswp-wd').value||0;
+  const y=+document.getElementById('rswp-years').value||0;
+  const endBal=+document.getElementById('rswp-end').value||0;
+  const client=document.getElementById('rswp-client').value||'Client';
+  const r1=+document.getElementById('rswp-s1').value||8;
+  const r2=+document.getElementById('rswp-s2').value||10;
+  function rswpCalc(r){
+    const rm=r/12/100; const n=y*12;
+    const req=wd*(1-Math.pow(1+rm,-n))/rm+endBal*Math.pow(1+rm,-n);
+    return {req};
+  }
+  const d1=rswpCalc(r1); const d2=rswpCalc(r2);
+  addPDFHeader(doc,'SWP Corpus Requirement','For '+client);
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Monthly SWP Needed','Rs '+fmtCshort(wd)],['Withdrawal Period',y+' Years'],['Balance at End','Rs '+fmtCshort(endBal)]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Lumpsum Investment Required',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1}%`,`Scenario 2 @ ${r2}%`],['Rs '+fmtCshort(d1.req),'Rs '+fmtCshort(d2.req)]]});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('RevSWP_Proposal_'+client+'.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== LT SIP PDF ====================
+function pdfLtSIP(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const target=+document.getElementById('lt-target').value||0;
+  const r=+document.getElementById('lt-rate').value||0;
+  const sipYrs=+document.getElementById('lt-sip').value||0;
+  const deferYrs=+document.getElementById('lt-defer').value||0;
+  const rm=r/12/100; const n=sipYrs*12; const R=r/100;
+  const sipFactor=(Math.pow(1+rm,n)-1)/rm;
+  const deferFactor=Math.pow(1+R,deferYrs);
+  const sipReq=target/(sipFactor*deferFactor);
+  addPDFHeader(doc,'Limited Period SIP Proposal','Invest for '+sipYrs+' yrs, Accumulate for '+deferYrs+' yrs');
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Target Amount','Rs '+fmtCshort(target)],['Return Assumed',r+'% p.a.'],['SIP Period',sipYrs+' Years'],['Deferment Period',deferYrs+' Years'],['Monthly SIP Required','Rs '+fmtCshort(sipReq)],['Total Invested','Rs '+fmtCshort(sipReq*n)],['Corpus after SIP','Rs '+fmtCshort(sipReq*sipFactor)],['Final Value after Deferment','Rs '+fmtCshort(target)]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('LimitedSIP_Proposal.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== ONE+SIP PDF ====================
+function pdfOneSIP(){
+  const s=getPDFSettings();
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(); const m=14;
+  const one=+document.getElementById('os-one').value||0;
+  const sip=+document.getElementById('os-sip').value||0;
+  const r=+document.getElementById('os-rate').value||0;
+  const y=+document.getElementById('os-years').value||0;
+  const rm=r/12/100; const n=y*12;
+  const oneFV=one*Math.pow(1+r/100,y);
+  const sipFV=sip*(Math.pow(1+rm,n)-1)/rm;
+  addPDFHeader(doc,'Onetime + SIP Proposal','Combined Investment Projection');
+  let y0=40;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Onetime Investment','Rs '+fmtCshort(one)],['Monthly SIP','Rs '+fmtCshort(sip)],['Return Assumed',r+'% p.a.'],['Period',y+' Years'],['Onetime FV','Rs '+fmtCshort(oneFV)],['SIP FV','Rs '+fmtCshort(sipFV)],['Total Future Value','Rs '+fmtCshort(oneFV+sipFV)],['Total Invested','Rs '+fmtCshort(one+sip*n)]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
+  doc.save('OneSIP_Proposal.pdf');
+  showToast('✅ PDF Downloaded!');
+}
+
+// ==================== EXCEL EXPORTS ====================
+function makeXL(sheetData,fname){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(sheetData);
+  XLSX.utils.book_append_sheet(wb,ws,'Data');
+  XLSX.writeFile(wb,fname+'.xlsx');
+  showToast('✅ Excel Downloaded!');
+}
+
+function xlSIP(){
   const P=+document.getElementById('sip-amt').value||0;
   const r=+document.getElementById('sip-rate').value||0;
   const y=+document.getElementById('sip-years').value||0;
-  const n=y*12,rm=r/12/100;
-  const sipMat=P*(Math.pow(1+rm,n)-1)/rm;
-  const sipInv=P*n;
-  const goalTarget=+document.getElementById('goal-target').value||0;
-  const goalY=+document.getElementById('goal-years').value||0;
-  const goalR=+document.getElementById('goal-rate').value||0;
-  const goalRM=goalR/12/100;
-  const goalN=goalY*12;
-  const goalSIP=goalTarget*goalRM/(Math.pow(1+goalRM,goalN)-1);
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-  const prev=document.getElementById('pdf-preview');
-  prev.style.display='block';
-  prev.innerHTML=`
-  <div style="background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;font-family:system-ui,sans-serif">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #0C447C">
-      <div><div style="font-size:22px;font-weight:600;color:#0C447C">${firm}</div>
-      <div style="font-size:13px;color:#888">${advisor} | ${arn} | ${contact}</div></div>
-      <div style="text-align:right"><div style="font-size:11px;color:#888">Date: ${today}</div>
-      <div style="background:#E6F1FB;color:#0C447C;font-size:12px;padding:4px 10px;border-radius:20px;margin-top:4px">Personalised Report</div></div>
-    </div>
-    <div style="background:#f5f7fa;border-radius:8px;padding:1rem;margin-bottom:1.5rem">
-      <div style="font-size:14px;font-weight:500;margin-bottom:8px">Prepared for: <span style="color:#185FA5">${client}</span></div>
-      <div style="display:flex;gap:20px;font-size:13px;flex-wrap:wrap">
-        <span><span style="color:#888">Mobile: </span>${mobile}</span>
-        <span><span style="color:#888">Risk: </span>${risk}</span>
-        <span><span style="color:#888">Horizon: </span>${horizon}</span>
-      </div>
-    </div>
-    ${funds.length?`<div style="margin-bottom:1.5rem"><div style="font-size:13px;font-weight:500;color:#888;margin-bottom:8px">Recommended Funds</div><div style="display:flex;flex-wrap:wrap;gap:8px">${funds.map(f=>`<span style="background:#E6F1FB;color:#0C447C;padding:5px 12px;border-radius:20px;font-size:13px">${f}</span>`).join('')}</div></div>`:''}
-    ${document.getElementById('inc-sip').checked?`<div style="margin-bottom:1rem;padding:1rem;border:1px solid #eee;border-radius:8px">
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px">SIP Projection</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Monthly SIP</div><div style="font-size:16px;font-weight:500;color:#185FA5">${fmt(P)}</div></div>
-        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Total Invested</div><div style="font-size:16px;font-weight:500">${fmtCr(sipInv)}</div></div>
-        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Maturity Value</div><div style="font-size:16px;font-weight:500;color:#3B6D11">${fmtCr(sipMat)}</div></div>
-      </div></div>`:''}
-    ${document.getElementById('inc-goal').checked?`<div style="margin-bottom:1rem;padding:1rem;border:1px solid #eee;border-radius:8px">
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Goal Plan — ${document.getElementById('goal-name').value}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Goal Amount</div><div style="font-size:16px;font-weight:500;color:#A32D2D">${fmtCr(goalTarget)}</div></div>
-        <div style="background:#f5f7fa;padding:10px;border-radius:8px;text-align:center"><div style="font-size:11px;color:#888">Required SIP</div><div style="font-size:16px;font-weight:500;color:#185FA5">${fmt(goalSIP)}/mo</div></div>
-      </div></div>`:''}
-    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center">
-      Mutual fund investments are subject to market risks. Please read all scheme related documents carefully. Prepared by ${advisor} (${arn}).
-    </div>
-  </div>
-  <button onclick="window.print()" style="width:100%;margin-top:1rem;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">🖨️ Print / Save as PDF</button>
-  `;
+  const step=+document.getElementById('sip-step').value||0;
+  const rm=r/12/100;
+  const rows=[['SIP Calculator','','',''],['Monthly SIP','Annual Step-up','Return %','Period'],
+    [P,step+'%',r+'%',y+' yrs'],['','','',''],
+    ['Year','Annual Investment','Returns','Portfolio Value']];
+  let inv=0,val=0,monthly=P;
+  for(let yr=1;yr<=y;yr++){
+    for(let m=0;m<12;m++){inv+=monthly;val=(val+monthly)*(1+rm);}
+    rows.push([yr,Math.round(monthly*12),Math.round(val-inv),Math.round(val)]);
+    if(step>0)monthly*=(1+step/100);
+  }
+  makeXL(rows,'SIP_Projection');
 }
 
+function xlLS(){
+  const P=+document.getElementById('ls-amt').value||0;
+  const r=+document.getElementById('ls-rate').value||0;
+  const y=+document.getElementById('ls-years').value||0;
+  const rows=[['Lumpsum Calculator'],['Investment','Return %','Period'],[P,r+'%',y+' yrs'],[''],
+    ['Year','Value','Absolute Return %']];
+  for(let i=1;i<=y;i++){
+    const v=P*Math.pow(1+r/100,i);
+    rows.push([i,Math.round(v),((v-P)/P*100).toFixed(2)+'%']);
+  }
+  makeXL(rows,'Lumpsum_Projection');
+}
+
+function xlSWP(){
+  const corpus=+document.getElementById('swp-corpus').value||0;
+  const wd=+document.getElementById('swp-wd').value||0;
+  const r=+document.getElementById('swp-rate').value||0;
+  const y=+document.getElementById('swp-years').value||0;
+  const rm=r/12/100;
+  const rows=[['SWP Calculator'],['Corpus','Monthly Withdrawal','Return %','Period'],
+    [corpus,wd,r+'%',y+' yrs'],[''],['Year','Annual Withdrawal','Corpus Balance']];
+  let bal=corpus;
+  for(let yr=1;yr<=y;yr++){
+    for(let m=0;m<12;m++){bal=bal*(1+rm)-wd;if(bal<0){bal=0;break;}}
+    rows.push([yr,Math.round(wd*12),Math.round(Math.max(bal,0))]);
+    if(bal<=0)break;
+  }
+  makeXL(rows,'SWP_Schedule');
+}
+
+function xlRevSWP(){
+  const wd=+document.getElementById('rswp-wd').value||0;
+  const r=+document.getElementById('rswp-rate').value||0;
+  const y=+document.getElementById('rswp-years').value||0;
+  const endBal=+document.getElementById('rswp-end').value||0;
+  const rm=r/12/100; const n=y*12;
+  const req=wd*(1-Math.pow(1+rm,-n))/rm+endBal*Math.pow(1+rm,-n);
+  const rows=[['Reverse SWP Calculator'],['Monthly SWP','Period','Return %','End Balance','Lumpsum Required'],
+    [wd,y,r+'%',endBal,Math.round(req)]];
+  makeXL(rows,'RevSWP_Calculation');
+}
+
+function xlGoal(){
+  const target=+document.getElementById('goal-target').value||0;
+  const y=+document.getElementById('goal-years').value||0;
+  const r=+document.getElementById('goal-rate').value||0;
+  const exist=+document.getElementById('goal-exist').value||0;
+  const rm=r/12/100; const n=y*12;
+  const fve=exist*Math.pow(1+r/100,y);
+  const rem=Math.max(target-fve,0);
+  const sip=rem*rm/(Math.pow(1+rm,n)-1);
+  const rows=[['Goal Planning'],['Target','Period','Return %','SIP Required/mo'],
+    [target,y,r+'%',Math.round(sip)],[''],['Year','Invested','Corpus']];
+  let val=0,inv=0;
+  for(let yr=1;yr<=y;yr++){
+    for(let m=0;m<12;m++){inv+=sip;val=(val+sip)*(1+rm);}
+    rows.push([yr,Math.round(inv),Math.round(val)]);
+  }
+  makeXL(rows,'Goal_Projection');
+}
+
+function xlLtSIP(){
+  const target=+document.getElementById('lt-target').value||0;
+  const r=+document.getElementById('lt-rate').value||0;
+  const sipYrs=+document.getElementById('lt-sip').value||0;
+  const deferYrs=+document.getElementById('lt-defer').value||0;
+  const rm=r/12/100; const n=sipYrs*12; const R=r/100;
+  const sipFactor=(Math.pow(1+rm,n)-1)/rm;
+  const deferFactor=Math.pow(1+R,deferYrs);
+  const sipReq=target/(sipFactor*deferFactor);
+  const rows=[['Limited Period SIP'],['Target','Return %','SIP Period','Defer Period','Monthly SIP'],
+    [target,r+'%',sipYrs,deferYrs,Math.round(sipReq)],[''],['Year','Phase','Corpus']];
+  let val=0,inv=0;
+  for(let yr=1;yr<=sipYrs;yr++){
+    for(let m=0;m<12;m++){inv+=sipReq;val=(val+sipReq)*(1+rm);}
+    rows.push([yr,'SIP Phase',Math.round(val)]);
+  }
+  for(let yr=1;yr<=deferYrs;yr++){
+    val*=(1+R);
+    rows.push([sipYrs+yr,'Deferment',Math.round(val)]);
+  }
+  makeXL(rows,'LimitedSIP_Projection');
+}
+
+function xlOneSIP(){
+  const one=+document.getElementById('os-one').value||0;
+  const sip=+document.getElementById('os-sip').value||0;
+  const r=+document.getElementById('os-rate').value||0;
+  const y=+document.getElementById('os-years').value||0;
+  const rm=r/12/100;
+  const rows=[['Onetime + SIP'],['Onetime','SIP/mo','Return %','Period'],
+    [one,sip,r+'%',y+' yrs'],[''],['Year','Onetime Value','SIP Value','Total']];
+  for(let i=1;i<=y;i++){
+    const o=Math.round(one*Math.pow(1+r/100,i));
+    const s=Math.round(sip*(Math.pow(1+rm,i*12)-1)/rm);
+    rows.push([i,o,s,o+s]);
+  }
+  makeXL(rows,'OneSIP_Projection');
+}
+
+// ==================== INIT ====================
+loadSettings();
 calcSIP();
 </script>
 </body>
