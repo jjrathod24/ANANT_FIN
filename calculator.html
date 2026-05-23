@@ -421,7 +421,10 @@ td:last-child,th:last-child{font-weight:600;color:#0C447C}
 <!-- JOURNAL VIEW -->
 <div class="journal-wrap" id="journalView">
   <div class="j-header">
-    <h2>📒 Proposal Journal</h2>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="switchView('calc')" style="background:#0C447C;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer">← Back</button>
+      <h2>📒 Proposal Journal</h2>
+    </div>
     <button class="j-clear" onclick="clearJournal()">🗑 Clear All</button>
   </div>
   <div id="journalList"></div>
