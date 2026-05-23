@@ -78,6 +78,29 @@ td:last-child,th:last-child{font-weight:600;color:#0C447C}
 .save-btn{width:100%;padding:12px;background:#0C447C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px}
 .save-btn:active{background:#083358}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;display:none;white-space:nowrap}
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:-240px;width:240px;height:100%;background:#0C447C;z-index:200;transition:left .25s;display:flex;flex-direction:column;padding-top:60px}
+.sidebar.open{left:0}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199}
+.sidebar-overlay.open{display:block}
+.sidebar-item{padding:14px 20px;color:rgba(255,255,255,.85);font-size:15px;font-weight:500;cursor:pointer;border-left:3px solid transparent;display:flex;align-items:center;gap:10px}
+.sidebar-item.active,.sidebar-item:hover{background:rgba(255,255,255,.12);color:#fff;border-left-color:#fff}
+.menu-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+/* JOURNAL */
+.journal-wrap{padding:16px;display:none}
+.journal-wrap.active{display:block}
+.j-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative}
+.j-card-top{display:flex;justify-content:space-between;align-items:flex-start}
+.j-client{font-size:15px;font-weight:700;color:#0C447C}
+.j-date{font-size:11px;color:#94a3b8}
+.j-type{display:inline-block;background:#EFF6FF;color:#1d4ed8;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin:5px 0}
+.j-details{font-size:12.5px;color:#475569;margin-top:4px}
+.j-del{position:absolute;top:10px;right:10px;background:none;border:none;color:#cbd5e1;font-size:18px;cursor:pointer;line-height:1}
+.j-del:hover{color:#ef4444}
+.j-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px}
+.j-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.j-header h2{font-size:16px;font-weight:700;color:#0C447C}
+.j-clear{background:#fff;border:1px solid #e2e8f0;color:#ef4444;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:500}
 /* DIVIDER */
 .divider{height:1px;background:#f1f5f9;margin:14px 0}
 /* INFO ROW */
@@ -89,10 +112,21 @@ td:last-child,th:last-child{font-weight:600;color:#0C447C}
 </head>
 <body>
 <div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div style="padding:0 16px 20px;color:#fff;font-size:13px;opacity:.7;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:8px">MF Advisor Pro</div>
+  <div class="sidebar-item active" id="sb-calc" onclick="switchView('calc')">📊 Calculator</div>
+  <div class="sidebar-item" id="sb-journal" onclick="switchView('journal')">📒 Journal</div>
+</div>
+
 <div class="topbar">
-  <div>
-    <h1>📊 MF Calculator Pro</h1>
-    <p>All-in-One Mutual Fund Calculator</p>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="menu-btn" onclick="openSidebar()">☰</button>
+    <div>
+      <h1>📊 MF Calculator Pro</h1>
+      <p>All-in-One Mutual Fund Calculator</p>
+    </div>
   </div>
   <div class="topbar-brand" onclick="showTab('settings')">⚙️ Settings</div>
 </div>
@@ -184,9 +218,17 @@ td:last-child,th:last-child{font-weight:600;color:#0C447C}
     <div class="metric metric-big"><div class="metric-label">Monthly SWP Possible</div><div class="metric-val" id="swp-possible">—</div></div>
   </div>
   <div class="card"><h3>Corpus Depletion</h3><div class="chart-wrap"><canvas id="swpChart"></canvas></div></div>
-  <div class="btn-row">
-    <button class="btn btn-pdf" onclick="pdfSWP()">📄 PDF Proposal</button>
-    <button class="btn btn-xl" onclick="xlSWP()">📊 Excel</button>
+  <div class="scenario-box">
+    <p>📄 PDF Proposal — 2 Scenarios</p>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input type="text" id="swp-client" value="Client Name"></div>
+      <div class="field"><label>Scenario 1 Rate %</label><input type="number" id="swp-s1" value="8" step="0.5"></div>
+      <div class="field"><label>Scenario 2 Rate %</label><input type="number" id="swp-s2" value="10" step="0.5"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" onclick="pdfSWP()">📄 PDF Proposal</button>
+      <button class="btn btn-xl" onclick="xlSWP()">📊 Excel</button>
+    </div>
   </div>
 </div>
 
@@ -375,6 +417,15 @@ td:last-child,th:last-child{font-weight:600;color:#0C447C}
 
 </div><!-- /content -->
 </div><!-- /app -->
+
+<!-- JOURNAL VIEW -->
+<div class="journal-wrap" id="journalView">
+  <div class="j-header">
+    <h2>📒 Proposal Journal</h2>
+    <button class="j-clear" onclick="clearJournal()">🗑 Clear All</button>
+  </div>
+  <div id="journalList"></div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -754,6 +805,7 @@ function pdfSIP(){
   }
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
   doc.save('SIP_Proposal_'+client+'.pdf');
+  saveJournal('SIP',client,'SIP: Rs '+fmtCshort(P)+'/mo | '+y+' yrs | @'+r1+'% & '+r2+'%');
   showToast('✅ PDF Downloaded!');
 }
 
@@ -789,6 +841,7 @@ function pdfLS(){
   doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year','Invested',`Value @${r1}%`,`Value @${r2}%`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
   doc.save('Lumpsum_Proposal_'+client+'.pdf');
+  saveJournal('Lumpsum',client,'Amount: Rs '+fmtCshort(P)+' | '+y+' yrs | @'+r1+'% & '+r2+'%');
   showToast('✅ PDF Downloaded!');
 }
 
@@ -799,27 +852,37 @@ function pdfSWP(){
   const W=doc.internal.pageSize.getWidth(); const m=14;
   const corpus=+document.getElementById('swp-corpus').value||0;
   const wd=+document.getElementById('swp-wd').value||0;
-  const r=+document.getElementById('swp-rate').value||0;
   const y=+document.getElementById('swp-years').value||0;
-  const rm=r/12/100;
-  let bal=corpus,total=0;
-  const rows=[];
-  for(let yr=1;yr<=y;yr++){
-    for(let mm=0;mm<12;mm++){bal=bal*(1+rm)-wd;total+=wd;if(bal<0){bal=0;break;}}
-    rows.push([yr,'Rs '+fmtCshort(wd*12),'Rs '+fmtCshort(Math.max(bal,0))]);
-    if(bal<=0)break;
+  const client=document.getElementById('swp-client').value||'Client';
+  const r1=+document.getElementById('swp-s1').value||8;
+  const r2=+document.getElementById('swp-s2').value||10;
+  function swpCalc(r){
+    const rm=r/12/100; let bal=corpus,total=0; const rows=[];
+    for(let yr=1;yr<=y;yr++){
+      for(let mm=0;mm<12;mm++){bal=bal*(1+rm)-wd;total+=wd;if(bal<0){bal=0;break;}}
+      rows.push([yr,'Rs '+fmtCshort(wd*12),'Rs '+fmtCshort(Math.max(bal,0))]);
+      if(bal<=0)break;
+    }
+    return {bal:Math.max(bal,0),total,rows};
   }
-  addPDFHeader(doc,'SWP Proposal','For Systematic Withdrawal Plan');
+  const d1=swpCalc(r1); const d2=swpCalc(r2);
+  addPDFHeader(doc,'SWP Proposal','For '+client);
   let y0=40;
-  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Initial Corpus','Rs '+fmtCshort(corpus)],['Monthly Withdrawal','Rs '+fmtCshort(wd)],['Return Assumed',r+'% p.a.'],['Withdrawal Period',y+' Years'],['Remaining Balance','Rs '+fmtCshort(Math.max(bal,0))],['Total Withdrawn','Rs '+fmtCshort(total)]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[['Initial Corpus','Rs '+fmtCshort(corpus)],['Monthly Withdrawal','Rs '+fmtCshort(wd)],['Withdrawal Period',y+' Years'],['Report Date',todayStr()]],columnStyles:{0:{fontStyle:'bold',fillColor:[240,245,252],cellWidth:80}}});
+  y0=doc.lastAutoTable.finalY+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(12,68,124);
+  doc.text('Remaining Corpus Comparison',W/2,y0,{align:'center'}); y0+=6;
+  doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1}%`,`Scenario 2 @ ${r2}%`],['Rs '+fmtCshort(d1.bal),'Rs '+fmtCshort(d2.bal)],['Withdrawn: Rs '+fmtCshort(d1.total),'Withdrawn: Rs '+fmtCshort(d2.total)]]});
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
   doc.addPage();
   doc.setFillColor(12,68,124); doc.roundedRect(m,10,W-2*m,12,2,2,'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
   doc.text('Year-Wise SWP Schedule',W/2,18,{align:'center'});
-  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year','Annual Withdrawal','Corpus Balance']],body:rows,alternateRowStyles:{fillColor:[245,249,255]}});
+  const tRows=d1.rows.map((r,i)=>[r[0],r[1],r[2],d2.rows[i]?d2.rows[i][2]:'—']);
+  doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year','Annual WD',`Balance @${r1}%`,`Balance @${r2}%`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
-  doc.save('SWP_Proposal.pdf');
+  doc.save('SWP_Proposal_'+client+'.pdf');
+  saveJournal('SWP',client,'Corpus: Rs '+fmtCshort(corpus)+' | WD: Rs '+fmtCshort(wd)+'/mo | '+y+' yrs | @'+r1+'% & '+r2+'%');
   showToast('✅ PDF Downloaded!');
 }
 
@@ -865,6 +928,7 @@ function pdfGoal(){
   doc.autoTable({startY:28,margin:{left:m,right:m},styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[24,95,165],textColor:[255,255,255]},head:[['Year',`S1(${r1}%) Invested`,`S1 Corpus`,`S2(${r2}%) Corpus`]],body:tRows,alternateRowStyles:{fillColor:[245,249,255]}});
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
   doc.save('Goal_'+goalName+'_'+client+'.pdf');
+  saveJournal('Goal ('+goalName+')',client,'Target: Rs '+fmtCshort(target)+' | '+y+' yrs | @'+r1+'% & '+r2+'%');
   showToast('✅ PDF Downloaded!');
 }
 
@@ -894,6 +958,7 @@ function pdfRevSWP(){
   doc.autoTable({startY:y0,margin:{left:m,right:m},styles:{fontSize:10,cellPadding:4,halign:'center'},headStyles:{fillColor:[12,68,124],textColor:[255,255,255]},body:[[`Scenario 1 @ ${r1}%`,`Scenario 2 @ ${r2}%`],['Rs '+fmtCshort(d1.req),'Rs '+fmtCshort(d2.req)]]});
   addPDFFooter(doc,s); addPDFWatermark(doc,s.brand||'MY BRAND');
   doc.save('RevSWP_Proposal_'+client+'.pdf');
+  saveJournal('Rev-SWP',client,'SWP Needed: Rs '+fmtCshort(wd)+'/mo | '+y+' yrs | @'+r1+'% & '+r2+'%');
   showToast('✅ PDF Downloaded!');
 }
 
@@ -1063,6 +1128,48 @@ function xlOneSIP(){
     rows.push([i,o,s,o+s]);
   }
   makeXL(rows,'OneSIP_Projection');
+}
+
+// ==================== SIDEBAR ====================
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sideOverlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sideOverlay').classList.remove('open');}
+function switchView(v){
+  closeSidebar();
+  document.getElementById('sb-calc').classList.toggle('active',v==='calc');
+  document.getElementById('sb-journal').classList.toggle('active',v==='journal');
+  document.querySelector('.app').style.display=v==='calc'?'flex':'none';
+  document.querySelector('.nav').style.display=v==='calc'?'flex':'none';
+  const jw=document.getElementById('journalView');
+  jw.style.display=v==='journal'?'block':'none';
+  if(v==='journal') renderJournal();
+}
+
+// ==================== JOURNAL ====================
+function saveJournal(type,client,details){
+  const list=JSON.parse(localStorage.getItem('mfjournal')||'[]');
+  list.unshift({id:Date.now(),type,client,details,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})});
+  localStorage.setItem('mfjournal',JSON.stringify(list));
+}
+function renderJournal(){
+  const list=JSON.parse(localStorage.getItem('mfjournal')||'[]');
+  const el=document.getElementById('journalList');
+  if(!list.length){el.innerHTML='<div class="j-empty">📭 No proposals yet.<br>Generate a PDF to see it here.</div>';return;}
+  el.innerHTML=list.map(e=>`
+    <div class="j-card" id="jc-${e.id}">
+      <button class="j-del" onclick="delJournal(${e.id})">×</button>
+      <div class="j-card-top"><span class="j-client">${e.client}</span><span class="j-date">${e.date}</span></div>
+      <span class="j-type">${e.type}</span>
+      <div class="j-details">${e.details}</div>
+    </div>`).join('');
+}
+function delJournal(id){
+  let list=JSON.parse(localStorage.getItem('mfjournal')||'[]');
+  list=list.filter(e=>e.id!==id);
+  localStorage.setItem('mfjournal',JSON.stringify(list));
+  renderJournal();
+}
+function clearJournal(){
+  if(confirm('Clear all journal entries?')){localStorage.removeItem('mfjournal');renderJournal();}
 }
 
 // ==================== INIT ====================
